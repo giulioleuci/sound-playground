@@ -292,7 +292,7 @@ export default function Module12() {
 
         {/* Play Control */}
         <div className="flex justify-center">
-          <PlayButton isPlaying={isPlaying} onClick={handleTogglePlay} size="lg" />
+          <PlayButton isPlaying={isPlaying} onToggle={handleTogglePlay} size="lg" />
         </div>
 
         {/* Spectrogram visualization */}
