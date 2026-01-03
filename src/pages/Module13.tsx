@@ -4,8 +4,8 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-import ModuleLayout from '@/components/ModuleLayout';
-import InfoBox from '@/components/InfoBox';
+import { ModuleLayout } from '@/components/ModuleLayout';
+import { InfoBox } from '@/components/InfoBox';
 import { Slider } from '@/components/Slider';
 import { getAudioContext } from '@/lib/audioUtils';
 import { useModuleStatus } from '@/hooks/useProgress';
