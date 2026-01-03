@@ -4,7 +4,10 @@ import { WaveVisualizer } from '@/components/WaveVisualizer';
 import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { InfoBox } from '@/components/InfoBox';
+import { Quiz } from '@/components/Quiz';
+import { TermTooltip } from '@/components/TermTooltip';
 import { useAudioContext } from '@/hooks/useAudioContext';
+import { getQuizForModule } from '@/data/quizzes';
 
 const Module1 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -88,8 +91,8 @@ const Module1 = () => {
             </div>
             <h4 className="font-semibold mb-2">Il suono è movimento</h4>
             <p className="text-sm text-muted-foreground">
-              Ogni suono è creato da qualcosa che si muove avanti e indietro molto velocemente: 
-              una corda, la membrana di un tamburo, le tue corde vocali.
+              Ogni suono è creato da qualcosa che si muove avanti e indietro molto velocemente:
+              una corda, la membrana di un tamburo, le tue corde vocali. Questo movimento si chiama <TermTooltip term="frequenza">vibrazione</TermTooltip>.
             </p>
           </div>
           
@@ -99,17 +102,25 @@ const Module1 = () => {
             </div>
             <h4 className="font-semibold mb-2">Le orecchie "vedono" le vibrazioni</h4>
             <p className="text-sm text-muted-foreground">
-              Le vibrazioni viaggiano nell'aria come onde nell'acqua. 
-              Quando raggiungono le tue orecchie, le trasformi in suoni.
+              Le vibrazioni viaggiano nell'aria come onde nell'acqua.
+              Quando raggiungono le tue orecchie, le trasformi in suoni. La velocità di queste vibrazioni è la <TermTooltip term="frequenza">frequenza</TermTooltip>.
             </p>
           </div>
         </div>
 
         {/* Experiment suggestion */}
         <InfoBox type="info" title="Prova tu!">
-          Muovi il cursore mentre ascolti: nota come il suono cambia insieme all'onda. 
+          Muovi il cursore mentre ascolti: nota come il suono cambia insieme all'onda.
           Vibrazioni più veloci = suoni più acuti. Vibrazioni più lente = suoni più gravi.
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={1} questions={getQuizForModule(1)} />
+        </div>
       </div>
     </ModuleLayout>
   );

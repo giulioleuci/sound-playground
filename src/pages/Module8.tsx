@@ -1,7 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Play, Pause } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 const Module8 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -174,8 +177,8 @@ const Module8 = () => {
               <div>
                 <h5 className="font-medium mb-1">È il rapporto più semplice</h5>
                 <p className="text-sm text-muted-foreground">
-                  3/2 è il rapporto più semplice dopo 2/1 (l'ottava). 
-                  Le onde si "incastrano" quasi perfettamente.
+                  3/2 è il rapporto più semplice dopo 2/1 (l'<TermTooltip term="ottava">ottava</TermTooltip>).
+                  Le onde si "incastrano" quasi perfettamente con <TermTooltip term="consonanza">consonanza</TermTooltip>.
                 </p>
               </div>
             </div>
@@ -248,6 +251,14 @@ const Module8 = () => {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={8} questions={getQuizForModule(8)} />
         </div>
       </div>
     </ModuleLayout>

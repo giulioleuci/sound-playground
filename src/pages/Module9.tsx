@@ -1,8 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Slider } from '@/components/Slider';
 import { PlayButton } from '@/components/PlayButton';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 // Pan flute notes with their ratios
 const panFluteNotes = [
@@ -225,9 +228,9 @@ const Module9 = () => {
         </div>
 
         <InfoBox type="tip" title="La stessa legge!">
-          Sia per le corde che per le colonne d'aria vale la stessa regola: 
-          <strong> la frequenza è inversamente proporzionale alla lunghezza</strong>. 
-          Metà lunghezza = doppia frequenza (un'ottava sopra).
+          Sia per le corde che per le colonne d'aria vale la stessa regola:
+          <strong> la frequenza è inversamente proporzionale alla lunghezza</strong>.
+          Metà lunghezza = doppia frequenza (un'<TermTooltip term="ottava">ottava</TermTooltip> sopra). È un esempio di <TermTooltip term="risonanza">risonanza</TermTooltip>!
         </InfoBox>
 
         {/* Comparison */}
@@ -274,6 +277,14 @@ const Module9 = () => {
               una scala musicale completa. Le stesse frazioni funzionano!
             </p>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={9} questions={getQuizForModule(9)} />
         </div>
       </div>
     </ModuleLayout>

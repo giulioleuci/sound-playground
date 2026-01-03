@@ -1,8 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { PlayButton } from '@/components/PlayButton';
 import { Plus, Minus } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
+import { Spectrogram } from '@/components/Spectrogram';
 
 interface Harmonic {
   n: number;
@@ -28,6 +32,7 @@ const Module5 = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorsRef = useRef<OscillatorNode[]>([]);
   const gainNodesRef = useRef<GainNode[]>([]);
+  const masterGainRef = useRef<GainNode | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
 
@@ -39,6 +44,7 @@ const Module5 = () => {
     });
     oscillatorsRef.current = [];
     gainNodesRef.current = [];
+    masterGainRef.current = null;
     setIsPlaying(false);
     setPlayingHarmonic(null);
   }, []);
@@ -54,20 +60,26 @@ const Module5 = () => {
     }
     const ctx = audioContextRef.current;
 
+    // Create master gain for spectrum analysis
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(1.0, ctx.currentTime);
+    masterGain.connect(ctx.destination);
+    masterGainRef.current = masterGain;
+
     const activeHarmonics = harmonics.filter(h => h.active);
-    
+
     activeHarmonics.forEach(h => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      
+
       osc.type = 'sine';
       osc.frequency.setValueAtTime(baseFrequency * h.n, ctx.currentTime);
       gain.gain.setValueAtTime((h.amplitude / 100) * 0.15 / h.n, ctx.currentTime);
-      
+
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(masterGain);
       osc.start();
-      
+
       oscillatorsRef.current.push(osc);
       gainNodesRef.current.push(gain);
     });
@@ -220,17 +232,17 @@ const Module5 = () => {
 
           <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-5 gap-3 mb-6">
             {harmonics.map((h) => (
-              <div 
+              <div
                 key={h.n}
                 className={`p-3 rounded-xl border-2 transition-all cursor-pointer ${
-                  h.active 
-                    ? 'border-accent bg-accent/10' 
+                  h.active
+                    ? 'border-accent bg-accent/10'
                     : 'border-transparent bg-muted/50 hover:bg-muted'
                 } ${playingHarmonic === h.n ? 'ring-2 ring-accent ring-offset-2' : ''}`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">
-                    {h.n === 1 ? 'Fond.' : `${h.n}°`}
+                    {h.n === 1 ? <TermTooltip term="fondamentale">Fond.</TermTooltip> : `${h.n}°`}
                   </span>
                   <button
                     onClick={() => toggleHarmonic(h.n)}
@@ -287,7 +299,7 @@ const Module5 = () => {
           />
 
           <div className="flex justify-center">
-            <PlayButton 
+            <PlayButton
               isPlaying={isPlaying}
               onToggle={playAll}
               size="lg"
@@ -295,9 +307,30 @@ const Module5 = () => {
           </div>
         </div>
 
+        {/* Spectrum Analysis */}
+        {isPlaying && masterGainRef.current && (
+          <div className="module-card animate-fade-in">
+            <h4 className="font-semibold mb-4">
+              Analisi spettrale degli armonici
+            </h4>
+            <Spectrogram
+              audioSource={masterGainRef.current}
+              fftSize={4096}
+              colorScheme="rainbow"
+              showFrequencyLabels={true}
+              minDecibels={-100}
+              maxDecibels={-20}
+            />
+            <p className="text-sm text-muted-foreground mt-4">
+              Ogni picco nello spettro corrisponde a un armonico attivo. Nota come gli
+              armonici sono esattamente multipli della fondamentale (220 Hz, 440 Hz, 660 Hz, ecc.).
+            </p>
+          </div>
+        )}
+
         <InfoBox type="tip" title="Questo è il teorema di Fourier!">
-          Nel 1822 il matematico Jean-Baptiste Fourier dimostrò che <strong>qualsiasi</strong> suono 
-          può essere scomposto in una somma di onde semplici (sinusoidi). È come dire che ogni 
+          Nel 1822 il matematico Jean-Baptiste Fourier dimostrò che <strong>qualsiasi</strong> suono
+          può essere scomposto in una somma di <TermTooltip term="armonico">armonici</TermTooltip> (onde semplici). È come dire che ogni
           colore si può ottenere mescolando rosso, verde e blu!
         </InfoBox>
 
@@ -308,14 +341,14 @@ const Module5 = () => {
           </h4>
           <div className="space-y-4 text-muted-foreground">
             <p>
-              <strong>La fondamentale (1°)</strong> è la frequenza base: determina quale nota sentiamo.
+              <strong>La <TermTooltip term="fondamentale">fondamentale</TermTooltip> (1°)</strong> è la frequenza base: determina quale nota sentiamo.
             </p>
             <p>
-              <strong>Gli armonici (2°, 3°, 4°...)</strong> sono multipli esatti della fondamentale: 
+              <strong>Gli <TermTooltip term="armonico">armonici</TermTooltip> (2°, 3°, 4°...)</strong> sono multipli esatti della fondamentale:
               se la fondamentale è 220 Hz, il secondo armonico è 440 Hz, il terzo 660 Hz, e così via.
             </p>
             <p>
-              <strong>Il timbro</strong> dipende da quali armonici sono presenti e quanto sono forti. 
+              <strong>Il <TermTooltip term="timbro">timbro</TermTooltip></strong> dipende da quali armonici sono presenti e quanto sono forti.
               Ecco perché un flauto (pochi armonici) suona diverso da un violino (molti armonici)!
             </p>
           </div>
@@ -338,6 +371,14 @@ const Module5 = () => {
             <div className="text-sm font-medium">4° armonico</div>
             <div className="text-xs text-muted-foreground">Due ottave sopra</div>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={5} questions={getQuizForModule(5)} />
         </div>
       </div>
     </ModuleLayout>

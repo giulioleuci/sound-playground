@@ -11,12 +11,17 @@ import { getAudioContext, stopOscillator, type OscillatorNodes } from '@/lib/aud
 import { useModuleStatus } from '@/hooks/useProgress';
 import { TermTooltip } from '@/components/TermTooltip';
 import { Brain, Volume2, VolumeX, TrendingUp } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
+import { Spectrogram } from '@/components/Spectrogram';
 
 export default function Module14() {
   const [shepardPlaying, setShepardPlaying] = useState(false);
   const [missingFundPlaying, setMissingFundPlaying] = useState(false);
   const shepardOscillatorsRef = useRef<OscillatorNodes[]>([]);
   const missingFundOscillatorsRef = useRef<OscillatorNodes[]>([]);
+  const shepardMasterGainRef = useRef<GainNode | null>(null);
+  const missingFundMasterGainRef = useRef<GainNode | null>(null);
   const shepardIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { markCompleted } = useModuleStatus(14);
 
@@ -26,6 +31,7 @@ export default function Module14() {
       // Stop
       shepardOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
       shepardOscillatorsRef.current = [];
+      shepardMasterGainRef.current = null;
       if (shepardIntervalRef.current) {
         clearInterval(shepardIntervalRef.current);
         shepardIntervalRef.current = null;
@@ -36,6 +42,12 @@ export default function Module14() {
       try {
         const ctx = getAudioContext();
         let baseFreq = 220; // A3
+
+        // Create master gain for visualization
+        const masterGain = ctx.createGain();
+        masterGain.gain.value = 1;
+        masterGain.connect(ctx.destination);
+        shepardMasterGainRef.current = masterGain;
 
         const playShepardStep = () => {
           // Stop previous
@@ -62,7 +74,7 @@ export default function Module14() {
             gain.gain.value = amplitude;
 
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(masterGain);
             osc.start();
 
             newOscillators.push({ oscillator: osc, gainNode: gain });
@@ -95,6 +107,7 @@ export default function Module14() {
       // Stop
       missingFundOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
       missingFundOscillatorsRef.current = [];
+      missingFundMasterGainRef.current = null;
       setMissingFundPlaying(false);
     } else {
       // Start - play harmonics WITHOUT fundamental
@@ -102,6 +115,12 @@ export default function Module14() {
         const ctx = getAudioContext();
         const fundamental = 200; // Hz
         const harmonics = [2, 3, 4, 5, 6]; // Armonici senza la fondamentale!
+
+        // Create master gain for visualization
+        const masterGain = ctx.createGain();
+        masterGain.gain.value = 1;
+        masterGain.connect(ctx.destination);
+        missingFundMasterGainRef.current = masterGain;
 
         const newOscillators: OscillatorNodes[] = [];
 
@@ -114,7 +133,7 @@ export default function Module14() {
           gain.gain.value = 0.15;
 
           osc.connect(gain);
-          gain.connect(ctx.destination);
+          gain.connect(masterGain);
           osc.start();
 
           newOscillators.push({ oscillator: osc, gainNode: gain });
@@ -190,6 +209,25 @@ export default function Module14() {
                   size="lg"
                 />
               </div>
+
+              {/* Spectrogram for Shepard Tone */}
+              {shepardPlaying && shepardMasterGainRef.current && (
+                <div className="mt-6">
+                  <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                    Spettro delle ottave sovrapposte
+                  </h4>
+                  <Spectrogram
+                    audioSource={shepardMasterGainRef.current as any}
+                    fftSize={2048}
+                    colorScheme="blue"
+                  />
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                    Lo spettrogramma mostra le 5 ottave che suonano simultaneamente.
+                    Osserva come le frequenze si spostano verso l'alto mentre
+                    l'ampiezza si distribuisce con una curva gaussiana.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -242,6 +280,24 @@ export default function Module14() {
                   size="lg"
                 />
               </div>
+
+              {/* Spectrogram for Missing Fundamental */}
+              {missingFundPlaying && missingFundMasterGainRef.current && (
+                <div className="mt-6">
+                  <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                    Spettro degli armonici senza fondamentale
+                  </h4>
+                  <Spectrogram
+                    audioSource={missingFundMasterGainRef.current as any}
+                    fftSize={2048}
+                    colorScheme="green"
+                  />
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                    Lo spettrogramma mostra solo gli armonici 2°, 3°, 4°, 5° e 6° (400, 600, 800, 1000, 1200 Hz).
+                    La fondamentale a 200 Hz è completamente assente, ma il cervello la percepisce comunque!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -303,6 +359,14 @@ export default function Module14() {
             </li>
           </ul>
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={14} questions={getQuizForModule(14)} />
+        </div>
 
         <div className="flex justify-center">
           <button

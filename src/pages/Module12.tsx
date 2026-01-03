@@ -14,6 +14,9 @@ import { useCanvas } from '@/hooks/useCanvas';
 import { clearCanvas, drawSineWave } from '@/lib/canvasUtils';
 import { PresetManager } from '@/components/PresetManager';
 import { TermTooltip } from '@/components/TermTooltip';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
+import { Spectrogram } from '@/components/Spectrogram';
 
 interface Harmonic {
   number: number;
@@ -37,6 +40,7 @@ export default function Module12() {
   const [baseFrequency, setBaseFrequency] = useState(261.63); // C4
   const [harmonics, setHarmonics] = useState<Harmonic[]>(HAMMOND_DRAWBARS);
   const oscillatorsRef = useRef<OscillatorNodes[]>([]);
+  const masterGainRef = useRef<GainNode | null>(null);
   const { markCompleted } = useModuleStatus(12);
 
   // Visualizzazione forma d'onda composita
@@ -94,12 +98,19 @@ export default function Module12() {
       // Stop all oscillators
       oscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
       oscillatorsRef.current = [];
+      masterGainRef.current = null;
       setIsPlaying(false);
     } else {
       // Start oscillators for each active harmonic
       try {
         const ctx = getAudioContext();
         const newOscillators: OscillatorNodes[] = [];
+
+        // Create master gain for visualization
+        const masterGain = ctx.createGain();
+        masterGain.gain.value = 1;
+        masterGain.connect(ctx.destination);
+        masterGainRef.current = masterGain;
 
         harmonics.forEach(harmonic => {
           if (harmonic.level > 0) {
@@ -111,7 +122,7 @@ export default function Module12() {
             gain.gain.value = (harmonic.level / 8) * 0.2; // Max 0.2 per armonico
 
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(masterGain);
             osc.start();
 
             newOscillators.push({ oscillator: osc, gainNode: gain });
@@ -145,6 +156,14 @@ export default function Module12() {
       const ctx = getAudioContext();
       const newOscillators: OscillatorNodes[] = [];
 
+      // Create/reuse master gain
+      if (!masterGainRef.current) {
+        const masterGain = ctx.createGain();
+        masterGain.gain.value = 1;
+        masterGain.connect(ctx.destination);
+        masterGainRef.current = masterGain;
+      }
+
       harmonics.forEach(harmonic => {
         if (harmonic.level > 0) {
           const osc = ctx.createOscillator();
@@ -155,7 +174,7 @@ export default function Module12() {
           gain.gain.value = (harmonic.level / 8) * 0.2;
 
           osc.connect(gain);
-          gain.connect(ctx.destination);
+          gain.connect(masterGainRef.current!);
           osc.start();
 
           newOscillators.push({ oscillator: osc, gainNode: gain });
@@ -276,6 +295,25 @@ export default function Module12() {
           <PlayButton isPlaying={isPlaying} onClick={handleTogglePlay} size="lg" />
         </div>
 
+        {/* Spectrogram visualization */}
+        {isPlaying && masterGainRef.current && (
+          <div className="module-card">
+            <h3 className="font-display text-xl font-semibold mb-4">
+              Spettro degli armonici
+            </h3>
+            <Spectrogram
+              audioSource={masterGainRef.current as any}
+              fftSize={2048}
+              colorScheme="purple"
+            />
+            <p className="text-sm text-muted-foreground mt-3">
+              Lo spettrogramma visualizza lo spettro degli armonici attivi.
+              Ogni picco corrisponde a un drawbar attivo, mostrando come i diversi
+              armonici si combinano per creare il timbro finale.
+            </p>
+          </div>
+        )}
+
         {/* Preset Manager */}
         <PresetManager
           moduleNumber={12}
@@ -293,6 +331,14 @@ export default function Module12() {
             <li>Aggiungi la sub-ottava (16') per un suono più corposo</li>
           </ul>
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={12} questions={getQuizForModule(12)} />
+        </div>
 
         <div className="flex justify-center">
           <button

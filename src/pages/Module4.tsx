@@ -1,7 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Square } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
+import { Spectrogram } from '@/components/Spectrogram';
 
 type WaveType = 'sine' | 'square' | 'triangle' | 'sawtooth';
 
@@ -269,7 +273,7 @@ const Module4 = () => {
         {activeInstrument && (
           <div className="module-card animate-fade-in">
             <h4 className="font-semibold mb-4">
-              Forma d'onda: {instruments.find(i => i.id === activeInstrument)?.name}
+              <TermTooltip term="spettro">Forma d'onda</TermTooltip>: {instruments.find(i => i.id === activeInstrument)?.name}
             </h4>
             <canvas
               ref={canvasRef}
@@ -278,6 +282,30 @@ const Module4 = () => {
             />
             <p className="text-sm text-muted-foreground mt-4">
               {instruments.find(i => i.id === activeInstrument)?.description}
+            </p>
+          </div>
+        )}
+
+        {/* Real-time Spectrum Analysis */}
+        {activeInstrument && oscillatorRef.current && (
+          <div className="module-card animate-fade-in">
+            <h4 className="font-semibold mb-4">
+              Spettro in tempo reale
+            </h4>
+            <Spectrogram
+              audioSource={oscillatorRef.current}
+              fftSize={2048}
+              colorScheme={
+                instruments.find(i => i.id === activeInstrument)?.color === '#3b82f6' ? 'blue' :
+                instruments.find(i => i.id === activeInstrument)?.color === '#8b5cf6' ? 'purple' :
+                instruments.find(i => i.id === activeInstrument)?.color === '#ef4444' ? 'rainbow' :
+                'purple'
+              }
+              showFrequencyLabels={true}
+            />
+            <p className="text-sm text-muted-foreground mt-4">
+              Questo spettrogramma mostra l'analisi FFT in tempo reale. Le barre rappresentano
+              l'intensità di ciascuna frequenza presente nel suono.
             </p>
           </div>
         )}
@@ -330,10 +358,18 @@ const Module4 = () => {
         </div>
 
         <InfoBox type="tip" title="Lo spettro è come una ricetta!">
-          Ogni strumento ha la sua "ricetta" di frequenze. Il flauto usa quasi solo 
-          la frequenza principale (fondamentale). Il violino mescola tante frequenze 
-          (armonici) in proporzioni precise. Nel prossimo modulo vedremo come funziona!
+          Ogni strumento ha la sua "ricetta" di frequenze. Il flauto usa quasi solo
+          la frequenza principale (<TermTooltip term="fondamentale">fondamentale</TermTooltip>). Il violino mescola tante frequenze
+          (<TermTooltip term="armonico">armonici</TermTooltip>) in proporzioni precise. Nel prossimo modulo vedremo come funziona!
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={4} questions={getQuizForModule(4)} />
+        </div>
       </div>
     </ModuleLayout>
   );

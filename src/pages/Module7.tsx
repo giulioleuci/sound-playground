@@ -1,7 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Play, RotateCcw, Plus } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 interface ScaleNote {
   name: string;
@@ -221,8 +224,8 @@ const Module7 = () => {
         )}
 
         <InfoBox type="tip" title="Il ciclo delle quinte">
-          Questo metodo si chiama "ciclo delle quinte". Partendo da una nota e 
-          moltiplicando sempre per 3/2, puoi generare tutte e 12 le note della 
+          Questo metodo si chiama "ciclo delle <TermTooltip term="quinta">quinte</TermTooltip>". Partendo da una nota e
+          moltiplicando sempre per 3/2, puoi generare tutte e 12 le note della
           scala cromatica! Ci sono voluti secoli per scoprirlo.
         </InfoBox>
 
@@ -230,9 +233,9 @@ const Module7 = () => {
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="module-card text-center">
             <div className="text-3xl font-bold text-accent mb-2">3/2</div>
-            <div className="text-sm font-medium">La quinta</div>
+            <div className="text-sm font-medium">La <TermTooltip term="quinta">quinta</TermTooltip></div>
             <div className="text-xs text-muted-foreground">
-              Il rapporto più consonante dopo l'ottava
+              L'<TermTooltip term="intervallo">intervallo</TermTooltip> più consonante dopo l'ottava
             </div>
           </div>
           
@@ -254,11 +257,19 @@ const Module7 = () => {
         </div>
 
         <InfoBox type="warning" title="Ma c'è un problema...">
-          Se continui per 12 quinte, dovresti tornare esattamente al Do iniziale 
-          (7 ottave sopra). Ma 3/2 elevato alla 12 non è uguale a 2 elevato alla 7! 
-          Questo "errore" si chiama <strong>virgola pitagorica</strong> e lo 
+          Se continui per 12 quinte, dovresti tornare esattamente al Do iniziale
+          (7 ottave sopra). Ma 3/2 elevato alla 12 non è uguale a 2 elevato alla 7!
+          Questo "errore" si chiama <strong>virgola pitagorica</strong> e lo
           esploreremo nel Modulo 11.
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={7} questions={getQuizForModule(7)} />
+        </div>
       </div>
     </ModuleLayout>
   );

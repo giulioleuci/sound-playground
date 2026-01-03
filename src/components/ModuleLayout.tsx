@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Home } from 'lucide-react';
+import { ProgressBadge } from '@/components/ProgressBar';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 
 interface ModuleLayoutProps {
   moduleNumber: number;
@@ -25,8 +27,8 @@ export const ModuleLayout = ({
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <Home size={20} />
@@ -37,26 +39,33 @@ export const ModuleLayout = ({
               <span className="info-badge">Modulo {moduleNumber}</span>
             </div>
           </div>
-          
-          <nav className="flex items-center gap-2">
-            {prevModule && (
-              <Link 
-                to={prevModule.path}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-              >
-                <ArrowLeft size={16} />
-                <span className="hidden sm:inline">{prevModule.title}</span>
-              </Link>
-            )}
-            {prevModule && nextModule && <span className="text-border">|</span>}
-            {nextModule && (
-              <Link 
-                to={nextModule.path}
-                className="text-sm text-accent hover:text-accent/80 transition-colors"
-              >
-                {nextModule.title} →
-              </Link>
-            )}
+
+          <nav className="flex items-center gap-3">
+            <ProgressBadge />
+            <DarkModeToggle />
+
+            <span className="text-border hidden sm:inline">|</span>
+
+            <div className="flex items-center gap-2">
+              {prevModule && (
+                <Link
+                  to={prevModule.path}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <ArrowLeft size={16} />
+                  <span className="hidden sm:inline">{prevModule.title}</span>
+                </Link>
+              )}
+              {prevModule && nextModule && <span className="text-border">|</span>}
+              {nextModule && (
+                <Link
+                  to={nextModule.path}
+                  className="text-sm text-accent hover:text-accent/80 transition-colors"
+                >
+                  {nextModule.title} →
+                </Link>
+              )}
+            </div>
           </nav>
         </div>
       </header>

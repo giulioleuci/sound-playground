@@ -14,6 +14,9 @@ import { clearCanvas } from '@/lib/canvasUtils';
 import { PresetManager } from '@/components/PresetManager';
 import { TermTooltip } from '@/components/TermTooltip';
 import { Music, Piano, Guitar, Drum } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
+import { Oscilloscope } from '@/components/Spectrogram';
 
 interface ADSRParams {
   attack: number; // seconds
@@ -39,6 +42,7 @@ export default function Module13() {
   const [frequency, setFrequency] = useState(440);
   const [isPlaying, setIsPlaying] = useState(false);
   const noteStartTimeRef = useRef<number>(0);
+  const activeGainRef = useRef<GainNode | null>(null);
   const { markCompleted } = useModuleStatus(13);
 
   // Visualizza ADSR envelope
@@ -176,11 +180,15 @@ export default function Module13() {
       osc.start(now);
       osc.stop(now + attack + decay + 1 + release);
 
+      // Save gain reference for visualization
+      activeGainRef.current = gain;
+
       setIsPlaying(true);
       noteStartTimeRef.current = now;
 
       setTimeout(() => {
         setIsPlaying(false);
+        activeGainRef.current = null;
       }, (attack + decay + 1 + release) * 1000);
     } catch (error) {
       console.error('Errore riproduzione nota:', error);
@@ -237,6 +245,23 @@ export default function Module13() {
             className="w-full h-64 rounded-lg bg-gray-50 dark:bg-gray-900"
           />
         </div>
+
+        {/* Oscilloscope visualization */}
+        {isPlaying && activeGainRef.current && (
+          <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              Inviluppo in tempo reale
+            </h3>
+            <Oscilloscope
+              audioSource={activeGainRef.current as any}
+              fftSize={2048}
+            />
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+              L'oscilloscopio mostra l'inviluppo ADSR in tempo reale.
+              Osserva come l'ampiezza segue le fasi Attack, Decay, Sustain e Release.
+            </p>
+          </div>
+        )}
 
         {/* Preset Buttons */}
         <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
@@ -386,6 +411,14 @@ export default function Module13() {
             <li><strong>Pad:</strong> Attack molto lento, sustain alto, release molto lungo</li>
           </ul>
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={13} questions={getQuizForModule(13)} />
+        </div>
 
         <div className="flex justify-center">
           <button
