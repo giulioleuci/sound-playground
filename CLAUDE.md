@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-An interactive educational web application that explores the connection between mathematics, physics, and music. The project features 11 modules (in Italian) that guide users through concepts like sound vibrations, frequency, amplitude, harmonics, musical scales, and temperaments.
+An interactive educational web application that explores the connection between mathematics, physics, and music. The project features **14 modules** (in Italian) that guide users through concepts like sound vibrations, frequency, amplitude, harmonics, musical scales, temperaments, synthesis, and psychoacoustics. Includes interactive quizzes, ear training games, glossary, and preset management.
 
 **Tech Stack:**
 - Vite + React 18 + TypeScript

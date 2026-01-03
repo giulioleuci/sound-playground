@@ -1,0 +1,44 @@
+{
+  "name": "Sound Playground - Esplora Matematica e Musica",
+  "short_name": "Sound Playground",
+  "description": "Applicazione educativa interattiva per esplorare la connessione tra matematica, fisica e musica",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "music", "science"],
+  "lang": "it",
+  "dir": "ltr",
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Glossario",
+      "short_name": "Glossario",
+      "description": "Dizionario dei termini musicali",
+      "url": "/glossario",
+      "icons": []
+    },
+    {
+      "name": "Modalità Sfida",
+      "short_name": "Sfida",
+      "description": "Allena il tuo orecchio musicale",
+      "url": "/sfida",
+      "icons": []
+    }
+  ]
+}
