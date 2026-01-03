@@ -10,7 +10,7 @@ import { PlayButton } from '@/components/PlayButton';
 import { getAudioContext, stopOscillator, type OscillatorNodes } from '@/lib/audioUtils';
 import { useModuleStatus } from '@/hooks/useProgress';
 import { TermTooltip } from '@/components/TermTooltip';
-import { Brain, Volume2, VolumeX, TrendingUp } from 'lucide-react';
+import { Brain, Volume2, VolumeX, TrendingUp, Headphones, Layers, Music } from 'lucide-react';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
 import { Spectrogram } from '@/components/Spectrogram';
@@ -18,11 +18,18 @@ import { Spectrogram } from '@/components/Spectrogram';
 export default function Module14() {
   const [shepardPlaying, setShepardPlaying] = useState(false);
   const [missingFundPlaying, setMissingFundPlaying] = useState(false);
+  const [maskingPlaying, setMaskingPlaying] = useState(false);
+  const [phantomPlaying, setPhantomPlaying] = useState(false);
+  const [tritonePlaying, setTritonePlaying] = useState(false);
   const shepardOscillatorsRef = useRef<OscillatorNodes[]>([]);
   const missingFundOscillatorsRef = useRef<OscillatorNodes[]>([]);
+  const maskingOscillatorsRef = useRef<OscillatorNodes[]>([]);
+  const phantomOscillatorsRef = useRef<OscillatorNodes[]>([]);
+  const tritoneOscillatorsRef = useRef<OscillatorNodes[]>([]);
   const shepardMasterGainRef = useRef<GainNode | null>(null);
   const missingFundMasterGainRef = useRef<GainNode | null>(null);
   const shepardIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const tritoneIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { markCompleted } = useModuleStatus(14);
 
   // Shepard Tone - scala infinita che sale
@@ -147,13 +154,205 @@ export default function Module14() {
     }
   }, [missingFundPlaying]);
 
+  // Mascheramento (Masking) - un suono forte nasconde suoni deboli
+  const handleMasking = useCallback(() => {
+    if (maskingPlaying) {
+      maskingOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
+      maskingOscillatorsRef.current = [];
+      setMaskingPlaying(false);
+    } else {
+      try {
+        const ctx = getAudioContext();
+        const newOscillators: OscillatorNodes[] = [];
+
+        // Suono mascherante forte a 1000 Hz
+        const maskOsc = ctx.createOscillator();
+        const maskGain = ctx.createGain();
+        maskOsc.type = 'sine';
+        maskOsc.frequency.value = 1000;
+        maskGain.gain.value = 0.3;
+        maskOsc.connect(maskGain);
+        maskGain.connect(ctx.destination);
+        maskOsc.start();
+        newOscillators.push({ oscillator: maskOsc, gainNode: maskGain });
+
+        // Suono debole a 1050 Hz (mascherato)
+        const weakOsc = ctx.createOscillator();
+        const weakGain = ctx.createGain();
+        weakOsc.type = 'sine';
+        weakOsc.frequency.value = 1050;
+        weakGain.gain.value = 0.05; // Molto più debole
+        weakOsc.connect(weakGain);
+        weakGain.connect(ctx.destination);
+        weakOsc.start();
+        newOscillators.push({ oscillator: weakOsc, gainNode: weakGain });
+
+        // Suono a 1500 Hz (non mascherato - udibile)
+        const audibleOsc = ctx.createOscillator();
+        const audibleGain = ctx.createGain();
+        audibleOsc.type = 'sine';
+        audibleOsc.frequency.value = 1500;
+        audibleGain.gain.value = 0.05;
+        audibleOsc.connect(audibleGain);
+        audibleGain.connect(ctx.destination);
+        audibleOsc.start();
+        newOscillators.push({ oscillator: audibleOsc, gainNode: audibleGain });
+
+        maskingOscillatorsRef.current = newOscillators;
+        setMaskingPlaying(true);
+      } catch (error) {
+        console.error('Errore Mascheramento:', error);
+      }
+    }
+  }, [maskingPlaying]);
+
+  // Ottava Phantom (Dichotic pitch) - audio stereo con frequenze diverse
+  const handlePhantomOctave = useCallback(() => {
+    if (phantomPlaying) {
+      phantomOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
+      phantomOscillatorsRef.current = [];
+      setPhantomPlaying(false);
+    } else {
+      try {
+        const ctx = getAudioContext();
+        const newOscillators: OscillatorNodes[] = [];
+
+        // Frequenza bassa nell'orecchio sinistro (400 Hz)
+        const leftOsc = ctx.createOscillator();
+        const leftGain = ctx.createGain();
+        const leftPanner = ctx.createStereoPanner();
+        leftOsc.type = 'sine';
+        leftOsc.frequency.value = 400;
+        leftGain.gain.value = 0.25;
+        leftPanner.pan.value = -1; // Tutto a sinistra
+        leftOsc.connect(leftGain);
+        leftGain.connect(leftPanner);
+        leftPanner.connect(ctx.destination);
+        leftOsc.start();
+        newOscillators.push({ oscillator: leftOsc, gainNode: leftGain });
+
+        // Frequenza alta nell'orecchio destro (800 Hz)
+        const rightOsc = ctx.createOscillator();
+        const rightGain = ctx.createGain();
+        const rightPanner = ctx.createStereoPanner();
+        rightOsc.type = 'sine';
+        rightOsc.frequency.value = 800;
+        rightGain.gain.value = 0.25;
+        rightPanner.pan.value = 1; // Tutto a destra
+        rightOsc.connect(rightGain);
+        rightGain.connect(rightPanner);
+        rightPanner.connect(ctx.destination);
+        rightOsc.start();
+        newOscillators.push({ oscillator: rightOsc, gainNode: rightGain });
+
+        phantomOscillatorsRef.current = newOscillators;
+        setPhantomPlaying(true);
+      } catch (error) {
+        console.error('Errore Ottava Phantom:', error);
+      }
+    }
+  }, [phantomPlaying]);
+
+  // Paradosso del Tritono (Deutsch's Tritone Paradox)
+  const handleTritoneParadox = useCallback(() => {
+    if (tritonePlaying) {
+      tritoneOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
+      tritoneOscillatorsRef.current = [];
+      if (tritoneIntervalRef.current) {
+        clearInterval(tritoneIntervalRef.current);
+        tritoneIntervalRef.current = null;
+      }
+      setTritonePlaying(false);
+    } else {
+      try {
+        const ctx = getAudioContext();
+
+        // Shepard tones separati da un tritono (6 semitoni)
+        let phase = 0;
+        const playTritonePair = () => {
+          // Stop previous
+          tritoneOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
+          tritoneOscillatorsRef.current = [];
+
+          const baseFreqs = [261.63, 293.66, 329.63, 369.99, 415.30, 466.16]; // C, D, E, F#, G#, A#
+          const baseFreq = baseFreqs[phase % 6];
+          const tritoneFreq = baseFreq * Math.pow(2, 6/12); // +6 semitoni
+
+          const newOscillators: OscillatorNodes[] = [];
+          const octaves = [0, 1, 2, 3];
+
+          // Prima nota (Shepard tone)
+          octaves.forEach(octave => {
+            const freq = baseFreq * Math.pow(2, octave);
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            const center = 1.5;
+            const sigma = 1.2;
+            const amplitude = Math.exp(-Math.pow(octave - center, 2) / (2 * sigma * sigma)) * 0.1;
+            gain.gain.value = amplitude;
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.4);
+
+            newOscillators.push({ oscillator: osc, gainNode: gain });
+          });
+
+          // Seconda nota dopo 0.5s (Shepard tone con tritono)
+          setTimeout(() => {
+            octaves.forEach(octave => {
+              const freq = tritoneFreq * Math.pow(2, octave);
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+
+              osc.type = 'sine';
+              osc.frequency.value = freq;
+
+              const center = 1.5;
+              const sigma = 1.2;
+              const amplitude = Math.exp(-Math.pow(octave - center, 2) / (2 * sigma * sigma)) * 0.1;
+              gain.gain.value = amplitude;
+
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start();
+              osc.stop(ctx.currentTime + 0.4);
+
+              newOscillators.push({ oscillator: osc, gainNode: gain });
+            });
+          }, 500);
+
+          tritoneOscillatorsRef.current = newOscillators;
+          phase++;
+        };
+
+        playTritonePair();
+        tritoneIntervalRef.current = setInterval(playTritonePair, 1500);
+        setTritonePlaying(true);
+      } catch (error) {
+        console.error('Errore Tritone Paradox:', error);
+      }
+    }
+  }, [tritonePlaying]);
+
   // Cleanup
   useEffect(() => {
     return () => {
       shepardOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
       missingFundOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
+      maskingOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
+      phantomOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
+      tritoneOscillatorsRef.current.forEach(nodes => stopOscillator(nodes));
       if (shepardIntervalRef.current) {
         clearInterval(shepardIntervalRef.current);
+      }
+      if (tritoneIntervalRef.current) {
+        clearInterval(tritoneIntervalRef.current);
       }
     };
   }, []);
@@ -205,7 +404,7 @@ export default function Module14() {
               <div className="flex justify-center">
                 <PlayButton
                   isPlaying={shepardPlaying}
-                  onClick={handleShepardTone}
+                  onToggle={handleShepardTone}
                   size="lg"
                 />
               </div>
@@ -276,7 +475,7 @@ export default function Module14() {
               <div className="flex justify-center">
                 <PlayButton
                   isPlaying={missingFundPlaying}
-                  onClick={handleMissingFundamental}
+                  onToggle={handleMissingFundamental}
                   size="lg"
                 />
               </div>
@@ -302,37 +501,156 @@ export default function Module14() {
           </div>
         </div>
 
-        {/* McGurk Effect - Text Only */}
-        <div className="p-6 bg-gradient-to-br from-green-50 to-yellow-50 dark:from-green-900/20 dark:to-yellow-900/20 rounded-xl border-2 border-green-200 dark:border-green-800">
+        {/* Mascheramento (Masking) */}
+        <div className="p-6 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl border-2 border-orange-200 dark:border-orange-800">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="p-3 bg-orange-600 dark:bg-orange-700 rounded-lg">
+              <Layers className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Mascheramento Uditivo
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Un suono forte "nasconde" suoni più deboli a frequenze vicine.
+                Questo fenomeno è sfruttato nella compressione audio (MP3, AAC) per
+                rimuovere frequenze che non percepiremmo comunque!
+              </p>
+
+              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                  <strong>L'esperimento:</strong>
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Suoniamo tre frequenze: un tono forte a 1000 Hz, uno debole a 1050 Hz (mascherato),
+                  e uno debole a 1500 Hz (non mascherato). Riesci a sentire tutti e tre?
+                </p>
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-orange-500" />
+                    <span>1000 Hz - <strong>Forte</strong> (mascherante)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-300" />
+                    <span>1050 Hz - <em>Debole</em> (mascherato - difficile da sentire!)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                    <span>1500 Hz - <em>Debole</em> (udibile - non mascherato)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <PlayButton
+                  isPlaying={maskingPlaying}
+                  onToggle={handleMasking}
+                  size="lg"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Ottava Phantom (Dichotic) */}
+        <div className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-xl border-2 border-pink-200 dark:border-pink-800">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="p-3 bg-pink-600 dark:bg-pink-700 rounded-lg">
+              <Headphones className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Ottava Phantom (Ascolto Dicotico)
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Quando frequenze diverse arrivano ai due orecchi separatamente, il cervello
+                può percepire una terza frequenza "fantasma" nel mezzo!
+              </p>
+
+              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                  <strong>⚠️ Usa le cuffie stereo!</strong>
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Inviamo 400 Hz all'orecchio sinistro e 800 Hz al destro. Alcuni percepiscono
+                  una frequenza intermedia (~600 Hz) che sembra provenire dal centro della testa!
+                </p>
+                <div className="flex justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-pink-600 dark:text-pink-400">◀ Sinistra</span>
+                    <span>400 Hz</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>800 Hz</span>
+                    <span className="text-purple-600 dark:text-purple-400">Destra ▶</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <PlayButton
+                  isPlaying={phantomPlaying}
+                  onToggle={handlePhantomOctave}
+                  size="lg"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Paradosso del Tritono */}
+        <div className="p-6 bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-xl border-2 border-green-200 dark:border-green-800">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="p-3 bg-teal-600 dark:bg-teal-700 rounded-lg">
+              <Music className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Paradosso del Tritono (Deutsch)
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Due note separate da un tritono (6 semitoni) usando Shepard tones:
+                alcune persone le percepiscono come ascendenti, altre come discendenti!
+                La percezione dipende dalla lingua madre e dal contesto culturale.
+              </p>
+
+              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                  <strong>L'esperimento:</strong>
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Ascolterai coppie di note (Shepard tones) separate da un tritono.
+                  Senti la seconda nota come più alta o più bassa della prima?
+                  Non c'è risposta "giusta" - è un'illusione auditiva!
+                </p>
+              </div>
+
+              <div className="flex justify-center">
+                <PlayButton
+                  isPlaying={tritonePlaying}
+                  onToggle={handleTritoneParadox}
+                  size="lg"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* McGurk Effect - Text Only (requires video) */}
+        <div className="p-6 bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 rounded-xl border-2 border-gray-200 dark:border-gray-800">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-green-600 dark:bg-green-700 rounded-lg">
+            <div className="p-3 bg-gray-600 dark:bg-gray-700 rounded-lg">
               <Brain className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                Altri Fenomeni Psicoacustici
+                Effetto McGurk
               </h3>
-              <ul className="space-y-3 text-gray-700 dark:text-gray-300">
-                <li>
-                  <strong className="text-gray-900 dark:text-gray-100">Effetto McGurk:</strong>{' '}
-                  Vedere labiale "ga" mentre senti "ba" fa percepire "da" - vista e udito si integrano!
-                </li>
-                <li>
-                  <strong className="text-gray-900 dark:text-gray-100">Mascheramento:</strong>{' '}
-                  Un suono forte nasconde suoni più deboli a frequenze vicine. Usato nella
-                  compressione MP3.
-                </li>
-                <li>
-                  <strong className="text-gray-900 dark:text-gray-100">Ottava phantom:</strong>{' '}
-                  Due frequenze (es. 400 Hz orecchio sinistro, 800 Hz destro) creano percezione
-                  di una terza frequenza (600 Hz) al centro!
-                </li>
-                <li>
-                  <strong className="text-gray-900 dark:text-gray-100">Paradosso del tritono:</strong>{' '}
-                  Stesso intervallo musicale percepito come ascendente o discendente a seconda
-                  del contesto culturale.
-                </li>
-              </ul>
+              <p className="text-gray-700 dark:text-gray-300">
+                Vedere il movimento labiale "ga" mentre si ascolta "ba" fa percepire "da".
+                La vista e l'udito si integrano nel cervello! Questo effetto richiede video,
+                cerca "McGurk effect" su YouTube per sperimentarlo.
+              </p>
             </div>
           </div>
         </div>

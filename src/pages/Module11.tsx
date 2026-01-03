@@ -72,32 +72,37 @@ const Module11 = () => {
     }
     const ctx = audioContextRef.current;
 
+    const duration = 8; // Durata lunga per apprezzare il battimento
+
     // Play pythagorean Mi
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
     osc1.type = 'sine';
     osc1.frequency.setValueAtTime(baseFreq * 81/64, ctx.currentTime);
-    gain1.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain1.gain.setValueAtTime(0.25, ctx.currentTime);
+    // Mantieni volume costante, poi fade out rapido alla fine
+    gain1.gain.setValueAtTime(0.25, ctx.currentTime + duration - 0.5);
+    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc1.connect(gain1);
     gain1.connect(ctx.destination);
-    
+
     // Play equal Mi
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     osc2.type = 'sine';
     osc2.frequency.setValueAtTime(baseFreq * Math.pow(2, 4/12), ctx.currentTime);
-    gain2.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain2.gain.setValueAtTime(0.25, ctx.currentTime);
+    // Mantieni volume costante, poi fade out rapido alla fine
+    gain2.gain.setValueAtTime(0.25, ctx.currentTime + duration - 0.5);
+    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc2.connect(gain2);
     gain2.connect(ctx.destination);
 
     osc1.start();
     osc2.start();
-    
-    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
-    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2);
-    
-    osc1.stop(ctx.currentTime + 2);
-    osc2.stop(ctx.currentTime + 2);
+
+    osc1.stop(ctx.currentTime + duration);
+    osc2.stop(ctx.currentTime + duration);
   }, []);
 
   // Calculate the Pythagorean comma
