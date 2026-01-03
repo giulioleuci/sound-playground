@@ -12,10 +12,9 @@
         var redirectPath = sessionStorage.getItem('spa-redirect-path');
         if (redirectPath) {
           sessionStorage.removeItem('spa-redirect-path');
-          var basePath = '/sound-playground';
-          var targetPath = redirectPath.replace(basePath, '') || '/';
-          if (targetPath !== '/' && targetPath !== window.location.pathname) {
-            history.replaceState(null, '', targetPath);
+          // Restore the full path so BrowserRouter can handle it correctly
+          if (redirectPath !== window.location.pathname) {
+            history.replaceState(null, '', redirectPath);
           }
         }
       })();
