@@ -14,6 +14,7 @@ import Module7 from "./pages/Module7";
 import Module8 from "./pages/Module8";
 import Module9 from "./pages/Module9";
 import Module10 from "./pages/Module10";
+import Module11 from "./pages/Module11";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/modulo-8" element={<Module8 />} />
           <Route path="/modulo-9" element={<Module9 />} />
           <Route path="/modulo-10" element={<Module10 />} />
+          <Route path="/modulo-11" element={<Module11 />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
