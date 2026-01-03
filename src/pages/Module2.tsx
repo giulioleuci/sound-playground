@@ -4,6 +4,7 @@ import { WaveVisualizer } from '@/components/WaveVisualizer';
 import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { useAudioContext } from '@/hooks/useAudioContext';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
@@ -136,8 +137,8 @@ const Module2 = () => {
         </div>
 
         <InfoBox type="tip" title="Il rapporto è la chiave!">
-          440 Hz è esattamente il doppio di 220 Hz. Questo rapporto 2:1 è speciale nella musica: 
-          si chiama <strong>ottava</strong> e le due note suonano "uguali ma diverse". 
+          440 <TermTooltip term="Hz">Hz</TermTooltip> è esattamente il doppio di 220 Hz. Questo rapporto 2:1 è speciale nella musica:
+          si chiama <TermTooltip term="ottava">ottava</TermTooltip> e le due note suonano "uguali ma diverse".
           Esploreremo meglio questo concetto nel Modulo 6!
         </InfoBox>
 
@@ -147,7 +148,7 @@ const Module2 = () => {
             🎵 Cosa significa Hz?
           </h4>
           <p className="text-muted-foreground">
-            <strong>Hz</strong> sta per Hertz, l'unità di misura della frequenza.
+            <TermTooltip term="Hz"><strong>Hz</strong></TermTooltip> sta per Hertz, l'unità di misura della <TermTooltip term="frequenza">frequenza</TermTooltip>.
             Un suono a 440 Hz vibra 440 volte in un secondo! È la nota "La" che
             gli strumenti usano per accordarsi.
           </p>

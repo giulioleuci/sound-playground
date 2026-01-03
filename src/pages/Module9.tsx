@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Slider } from '@/components/Slider';
 import { PlayButton } from '@/components/PlayButton';
 import { Quiz } from '@/components/Quiz';
@@ -227,9 +228,9 @@ const Module9 = () => {
         </div>
 
         <InfoBox type="tip" title="La stessa legge!">
-          Sia per le corde che per le colonne d'aria vale la stessa regola: 
-          <strong> la frequenza è inversamente proporzionale alla lunghezza</strong>. 
-          Metà lunghezza = doppia frequenza (un'ottava sopra).
+          Sia per le corde che per le colonne d'aria vale la stessa regola:
+          <strong> la frequenza è inversamente proporzionale alla lunghezza</strong>.
+          Metà lunghezza = doppia frequenza (un'<TermTooltip term="ottava">ottava</TermTooltip> sopra). È un esempio di <TermTooltip term="risonanza">risonanza</TermTooltip>!
         </InfoBox>
 
         {/* Comparison */}

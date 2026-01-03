@@ -97,5 +97,6 @@ export const useAudioContext = () => {
     setWaveType,
     playNote,
     initAudio,
+    gainNodeRef,
   };
 };

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Play } from 'lucide-react';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
@@ -135,9 +136,9 @@ const Module6 = () => {
         </div>
 
         <InfoBox type="tip" title="Perché suonano 'uguali'?">
-          Quando senti Do₃ e Do₄ insieme, non stridono mai! Questo perché il Do₄ 
-          vibra esattamente il doppio del Do₃. Le loro onde si "incastrano" perfettamente. 
-          Per questo le chiamiamo con lo stesso nome.
+          Quando senti Do₃ e Do₄ insieme, non stridono mai! Questo perché il Do₄
+          vibra esattamente il doppio del Do₃. Le loro onde si "incastrano" perfettamente.
+          Per questo suonano in <TermTooltip term="consonanza">consonanza</TermTooltip> e le chiamiamo con lo stesso nome.
         </InfoBox>
 
         {/* Visual ratio explanation */}
@@ -177,9 +178,9 @@ const Module6 = () => {
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="module-card">
             <div className="text-4xl mb-3">🔁</div>
-            <h4 className="font-semibold mb-2">L'ottava "chiude" la scala</h4>
+            <h4 className="font-semibold mb-2">L'<TermTooltip term="ottava">ottava</TermTooltip> "chiude" la scala</h4>
             <p className="text-sm text-muted-foreground">
-              Dopo sette note (Do Re Mi Fa Sol La Si) si torna al Do, 
+              Dopo sette note (Do Re Mi Fa Sol La Si) si torna al Do,
               ma un'ottava sopra. La musica si ripete!
             </p>
           </div>

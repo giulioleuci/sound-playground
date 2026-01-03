@@ -1,10 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Slider } from '@/components/Slider';
 import { PlayButton } from '@/components/PlayButton';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
+import { Spectrogram, Oscilloscope } from '@/components/Spectrogram';
 
 const Module10 = () => {
   const [freq1, setFreq1] = useState(440);
@@ -14,6 +16,7 @@ const Module10 = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorsRef = useRef<OscillatorNode[]>([]);
   const gainNodesRef = useRef<GainNode[]>([]);
+  const masterGainRef = useRef<GainNode | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const phaseRef = useRef(0);
@@ -40,6 +43,12 @@ const Module10 = () => {
     }
     const ctx = audioContextRef.current;
 
+    // Create master gain for visualization
+    const masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(1, ctx.currentTime);
+    masterGain.connect(ctx.destination);
+    masterGainRef.current = masterGain;
+
     // Oscillator 1
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
@@ -47,7 +56,7 @@ const Module10 = () => {
     osc1.frequency.setValueAtTime(freq1, ctx.currentTime);
     gain1.gain.setValueAtTime(0.15, ctx.currentTime);
     osc1.connect(gain1);
-    gain1.connect(ctx.destination);
+    gain1.connect(masterGain);
     osc1.start();
 
     // Oscillator 2
@@ -57,7 +66,7 @@ const Module10 = () => {
     osc2.frequency.setValueAtTime(freq2, ctx.currentTime);
     gain2.gain.setValueAtTime(0.15, ctx.currentTime);
     osc2.connect(gain2);
-    gain2.connect(ctx.destination);
+    gain2.connect(masterGain);
     osc2.start();
 
     oscillatorsRef.current = [osc1, osc2];
@@ -158,8 +167,8 @@ const Module10 = () => {
             🔊 Cosa sono i battimenti?
           </h3>
           <p className="text-muted-foreground mb-4">
-            Quando due suoni hanno frequenze molto vicine, le loro onde si sommano e si cancellano 
-            alternativamente, creando un effetto di "pulsazione" chiamato <strong>battimento</strong>.
+            Quando due suoni hanno <TermTooltip term="frequenza">frequenze</TermTooltip> molto vicine, le loro onde si sommano e si cancellano
+            alternativamente, creando un effetto di "pulsazione" chiamato <TermTooltip term="battimento"><strong>battimento</strong></TermTooltip>.
           </p>
           <p className="text-muted-foreground">
             Il numero di pulsazioni al secondo è uguale alla differenza tra le due frequenze!
@@ -219,13 +228,46 @@ const Module10 = () => {
           />
 
           <div className="flex justify-center">
-            <PlayButton 
+            <PlayButton
               isPlaying={isPlaying}
               onToggle={playBoth}
               size="lg"
             />
           </div>
         </div>
+
+        {/* Spectrogram and Oscilloscope visualizations */}
+        {isPlaying && masterGainRef.current && (
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="module-card">
+              <h3 className="font-display text-xl font-semibold mb-4">
+                Spettro delle frequenze
+              </h3>
+              <Spectrogram
+                audioSource={masterGainRef.current as any}
+                fftSize={2048}
+                colorScheme="purple"
+              />
+              <p className="text-sm text-muted-foreground mt-3">
+                Lo spettrogramma mostra le due frequenze vicine ({freq1} Hz e {freq2} Hz)
+                che generano il battimento.
+              </p>
+            </div>
+            <div className="module-card">
+              <h3 className="font-display text-xl font-semibold mb-4">
+                Ampiezza modulata
+              </h3>
+              <Oscilloscope
+                audioSource={masterGainRef.current as any}
+                fftSize={2048}
+              />
+              <p className="text-sm text-muted-foreground mt-3">
+                L'oscilloscopio mostra l'ampiezza che "pulsa" a {beatFrequency} Hz,
+                creando l'effetto di battimento.
+              </p>
+            </div>
+          </div>
+        )}
 
         <InfoBox type="tip" title="I musicisti usano i battimenti!">
           Quando accordi una chitarra o un pianoforte, ascolti i battimenti tra due corde. 

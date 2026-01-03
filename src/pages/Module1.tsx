@@ -5,6 +5,7 @@ import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { InfoBox } from '@/components/InfoBox';
 import { Quiz } from '@/components/Quiz';
+import { TermTooltip } from '@/components/TermTooltip';
 import { useAudioContext } from '@/hooks/useAudioContext';
 import { getQuizForModule } from '@/data/quizzes';
 
@@ -90,8 +91,8 @@ const Module1 = () => {
             </div>
             <h4 className="font-semibold mb-2">Il suono è movimento</h4>
             <p className="text-sm text-muted-foreground">
-              Ogni suono è creato da qualcosa che si muove avanti e indietro molto velocemente: 
-              una corda, la membrana di un tamburo, le tue corde vocali.
+              Ogni suono è creato da qualcosa che si muove avanti e indietro molto velocemente:
+              una corda, la membrana di un tamburo, le tue corde vocali. Questo movimento si chiama <TermTooltip term="frequenza">vibrazione</TermTooltip>.
             </p>
           </div>
           
@@ -101,8 +102,8 @@ const Module1 = () => {
             </div>
             <h4 className="font-semibold mb-2">Le orecchie "vedono" le vibrazioni</h4>
             <p className="text-sm text-muted-foreground">
-              Le vibrazioni viaggiano nell'aria come onde nell'acqua. 
-              Quando raggiungono le tue orecchie, le trasformi in suoni.
+              Le vibrazioni viaggiano nell'aria come onde nell'acqua.
+              Quando raggiungono le tue orecchie, le trasformi in suoni. La velocità di queste vibrazioni è la <TermTooltip term="frequenza">frequenza</TermTooltip>.
             </p>
           </div>
         </div>

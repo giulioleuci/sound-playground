@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Square } from 'lucide-react';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
@@ -272,7 +273,7 @@ const Module4 = () => {
         {activeInstrument && (
           <div className="module-card animate-fade-in">
             <h4 className="font-semibold mb-4">
-              Forma d'onda: {instruments.find(i => i.id === activeInstrument)?.name}
+              <TermTooltip term="spettro">Forma d'onda</TermTooltip>: {instruments.find(i => i.id === activeInstrument)?.name}
             </h4>
             <canvas
               ref={canvasRef}
@@ -358,8 +359,8 @@ const Module4 = () => {
 
         <InfoBox type="tip" title="Lo spettro è come una ricetta!">
           Ogni strumento ha la sua "ricetta" di frequenze. Il flauto usa quasi solo
-          la frequenza principale (fondamentale). Il violino mescola tante frequenze
-          (armonici) in proporzioni precise. Nel prossimo modulo vedremo come funziona!
+          la frequenza principale (<TermTooltip term="fondamentale">fondamentale</TermTooltip>). Il violino mescola tante frequenze
+          (<TermTooltip term="armonico">armonici</TermTooltip>) in proporzioni precise. Nel prossimo modulo vedremo come funziona!
         </InfoBox>
 
         {/* Quiz */}

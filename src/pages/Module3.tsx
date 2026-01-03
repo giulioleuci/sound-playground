@@ -4,14 +4,16 @@ import { WaveVisualizer } from '@/components/WaveVisualizer';
 import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { useAudioContext } from '@/hooks/useAudioContext';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
+import { Oscilloscope } from '@/components/Spectrogram';
 
 const Module3 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [amplitude, setAmplitudeValue] = useState(50);
-  const { startOscillator, stopOscillator, setAmplitude } = useAudioContext();
+  const { startOscillator, stopOscillator, setAmplitude, gainNodeRef } = useAudioContext();
   
   const frequency = 440; // Fixed frequency for this module
 
@@ -91,10 +93,27 @@ const Module3 = () => {
           </div>
         </div>
 
+        {/* Oscilloscope visualization */}
+        {isPlaying && gainNodeRef.current && (
+          <div className="module-card">
+            <h3 className="font-display text-xl font-semibold mb-4">
+              Forma d'onda in tempo reale
+            </h3>
+            <Oscilloscope
+              audioSource={gainNodeRef.current as any}
+              fftSize={2048}
+            />
+            <p className="text-sm text-muted-foreground mt-3">
+              L'oscilloscopio mostra l'ampiezza dell'onda sonora nel tempo.
+              Nota come l'altezza dell'onda cambia quando modifichi l'ampiezza.
+            </p>
+          </div>
+        )}
+
         {/* Key distinction */}
         <InfoBox type="warning" title="Attenzione alla differenza!">
-          La <strong>frequenza</strong> cambia quale nota senti (grave o acuta). 
-          L'<strong>ampiezza</strong> cambia quanto forte la senti. Sono due cose completamente diverse!
+          La <TermTooltip term="frequenza">frequenza</TermTooltip> cambia quale nota senti (grave o acuta).
+          L'<TermTooltip term="ampiezza">ampiezza</TermTooltip> cambia quanto forte la senti. Sono due cose completamente diverse!
         </InfoBox>
 
         {/* Visual comparison */}
@@ -154,7 +173,7 @@ const Module3 = () => {
             <div className="p-4 rounded-xl bg-background">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 rounded-full bg-pink-500" />
-                <span className="font-medium">Ampiezza</span>
+                <span className="font-medium"><TermTooltip term="ampiezza">Ampiezza</TermTooltip></span>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>→ Dimensione della vibrazione</li>

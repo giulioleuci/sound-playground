@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Play } from 'lucide-react';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
@@ -140,7 +141,7 @@ const Module11 = () => {
           {/* Pythagorean */}
           <div className="module-card">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold">Scala Pitagorica</h4>
+              <h4 className="font-semibold">Scala <TermTooltip term="pitagorico">Pitagorica</TermTooltip></h4>
               <button
                 onClick={() => playScale(pythagoreanScale, 'pythagorean')}
                 className={`btn-play text-sm px-4 py-2 ${activeScale === 'pythagorean' ? 'animate-pulse' : ''}`}
@@ -179,7 +180,7 @@ const Module11 = () => {
           {/* Equal temperament */}
           <div className="module-card">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold">Scala Equabile</h4>
+              <h4 className="font-semibold"><TermTooltip term="temperamento">Temperamento</TermTooltip> Equabile</h4>
               <button
                 onClick={() => playScale(equalScale, 'equal')}
                 className={`btn-play text-sm px-4 py-2 ${activeScale === 'equal' ? 'animate-pulse' : ''}`}
@@ -211,7 +212,7 @@ const Module11 = () => {
               ))}
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Divide l'ottava in 12 parti uguali. Meno pura ma chiude perfettamente.
+              Divide l'<TermTooltip term="ottava">ottava</TermTooltip> in 12 <TermTooltip term="semitono">semitoni</TermTooltip> uguali. Meno pura ma chiude perfettamente.
             </p>
           </div>
         </div>
@@ -228,8 +229,8 @@ const Module11 = () => {
         </div>
 
         <InfoBox type="tip" title="La soluzione moderna">
-          Oggi usiamo il <strong>temperamento equabile</strong>: ogni semitono è 
-          esattamente 1/12 dell'ottava. Gli intervalli non sono "puri", ma possiamo 
+          Oggi usiamo il <TermTooltip term="temperamento">temperamento</TermTooltip> equabile: ogni <TermTooltip term="semitono">semitono</TermTooltip> è
+          esattamente 1/12 dell'<TermTooltip term="ottava">ottava</TermTooltip>. Gli intervalli non sono "puri", ma possiamo
           suonare in tutte le tonalità senza stonare!
         </InfoBox>
 

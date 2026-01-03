@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
+import { TermTooltip } from '@/components/TermTooltip';
 import { Play, Pause } from 'lucide-react';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
@@ -176,8 +177,8 @@ const Module8 = () => {
               <div>
                 <h5 className="font-medium mb-1">È il rapporto più semplice</h5>
                 <p className="text-sm text-muted-foreground">
-                  3/2 è il rapporto più semplice dopo 2/1 (l'ottava). 
-                  Le onde si "incastrano" quasi perfettamente.
+                  3/2 è il rapporto più semplice dopo 2/1 (l'<TermTooltip term="ottava">ottava</TermTooltip>).
+                  Le onde si "incastrano" quasi perfettamente con <TermTooltip term="consonanza">consonanza</TermTooltip>.
                 </p>
               </div>
             </div>
