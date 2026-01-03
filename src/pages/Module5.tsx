@@ -1,0 +1,296 @@
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { ModuleLayout } from '@/components/ModuleLayout';
+import { InfoBox } from '@/components/InfoBox';
+import { PlayButton } from '@/components/PlayButton';
+import { Slider } from '@/components/Slider';
+import { Plus, Minus } from 'lucide-react';
+
+interface Harmonic {
+  n: number;
+  ratio: string;
+  active: boolean;
+  amplitude: number;
+}
+
+const Module5 = () => {
+  const [harmonics, setHarmonics] = useState<Harmonic[]>([
+    { n: 1, ratio: '1', active: true, amplitude: 100 },
+    { n: 2, ratio: '2', active: false, amplitude: 50 },
+    { n: 3, ratio: '3', active: false, amplitude: 33 },
+    { n: 4, ratio: '4', active: false, amplitude: 25 },
+    { n: 5, ratio: '5', active: false, amplitude: 20 },
+    { n: 6, ratio: '6', active: false, amplitude: 17 },
+  ]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playingHarmonic, setPlayingHarmonic] = useState<number | null>(null);
+  
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorsRef = useRef<OscillatorNode[]>([]);
+  const gainNodesRef = useRef<GainNode[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+
+  const baseFrequency = 220;
+
+  const stopAll = useCallback(() => {
+    oscillatorsRef.current.forEach(osc => {
+      try { osc.stop(); } catch {}
+    });
+    oscillatorsRef.current = [];
+    gainNodesRef.current = [];
+    setIsPlaying(false);
+    setPlayingHarmonic(null);
+  }, []);
+
+  const playAll = useCallback(() => {
+    if (isPlaying) {
+      stopAll();
+      return;
+    }
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const ctx = audioContextRef.current;
+
+    const activeHarmonics = harmonics.filter(h => h.active);
+    
+    activeHarmonics.forEach(h => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFrequency * h.n, ctx.currentTime);
+      gain.gain.setValueAtTime((h.amplitude / 100) * 0.15 / h.n, ctx.currentTime);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      
+      oscillatorsRef.current.push(osc);
+      gainNodesRef.current.push(gain);
+    });
+
+    setIsPlaying(true);
+  }, [isPlaying, harmonics, stopAll]);
+
+  const playSingleHarmonic = useCallback((n: number) => {
+    stopAll();
+    
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const ctx = audioContextRef.current;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(baseFrequency * n, ctx.currentTime);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    
+    oscillatorsRef.current.push(osc);
+    setPlayingHarmonic(n);
+    
+    // Stop after 0.5s
+    setTimeout(() => {
+      try { osc.stop(); } catch {}
+      setPlayingHarmonic(null);
+    }, 500);
+  }, [stopAll]);
+
+  const toggleHarmonic = (n: number) => {
+    setHarmonics(prev => prev.map(h => 
+      h.n === n ? { ...h, active: !h.active } : h
+    ));
+  };
+
+  // Draw combined wave
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const draw = () => {
+      const { width, height } = canvas;
+      const centerY = height / 2;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      // Grid
+      ctx.strokeStyle = 'hsl(220 40% 13% / 0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(width, centerY);
+      ctx.stroke();
+
+      // Draw combined wave
+      ctx.strokeStyle = '#f97316';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#f97316';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+
+      const activeHarmonics = harmonics.filter(h => h.active);
+      
+      for (let x = 0; x <= width; x++) {
+        let y = centerY;
+        const t = (x / width) * Math.PI * 4;
+        
+        activeHarmonics.forEach(h => {
+          y += Math.sin(t * h.n) * (h.amplitude / 100) * 40 / h.n;
+        });
+
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      if (isPlaying) {
+        animationRef.current = requestAnimationFrame(draw);
+      }
+    };
+
+    // Resize canvas
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+
+    draw();
+
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [harmonics, isPlaying]);
+
+  return (
+    <ModuleLayout
+      moduleNumber={5}
+      title="Armonici e scomposizione di Fourier"
+      description="Ogni suono complesso è in realtà una somma di suoni semplici! Scopri come funziona questa magia matematica."
+      prevModule={{ path: '/modulo-4', title: 'Timbro' }}
+      nextModule={{ path: '/modulo-6', title: 'Ottava' }}
+    >
+      <div className="space-y-8">
+        {/* Harmonic toggles */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-2">
+            Costruisci il suono con gli armonici
+          </h3>
+          <p className="text-muted-foreground mb-6">
+            Attiva gli armonici uno alla volta e ascolta come cambia il suono. 
+            Ogni armonico vibra 2, 3, 4... volte più veloce della fondamentale.
+          </p>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+            {harmonics.map((h) => (
+              <div 
+                key={h.n}
+                className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                  h.active 
+                    ? 'border-accent bg-accent/10' 
+                    : 'border-transparent bg-muted/50 hover:bg-muted'
+                } ${playingHarmonic === h.n ? 'ring-2 ring-accent ring-offset-2' : ''}`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">
+                    {h.n === 1 ? 'Fond.' : `${h.n}°`}
+                  </span>
+                  <button
+                    onClick={() => toggleHarmonic(h.n)}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                      h.active ? 'bg-accent text-white' : 'bg-muted'
+                    }`}
+                  >
+                    {h.active ? <Minus size={14} /> : <Plus size={14} />}
+                  </button>
+                </div>
+                
+                <div className="text-lg font-bold mb-1">
+                  {(baseFrequency * h.n).toFixed(0)} Hz
+                </div>
+                
+                <button
+                  onClick={() => playSingleHarmonic(h.n)}
+                  className="text-xs text-accent hover:underline"
+                >
+                  Ascolta solo
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Combined wave display */}
+          <canvas
+            ref={canvasRef}
+            className="w-full h-32 rounded-xl wave-canvas mb-4"
+          />
+
+          <div className="flex justify-center">
+            <PlayButton 
+              isPlaying={isPlaying}
+              onToggle={playAll}
+              size="lg"
+            />
+          </div>
+        </div>
+
+        <InfoBox type="tip" title="Questo è il teorema di Fourier!">
+          Nel 1822 il matematico Jean-Baptiste Fourier dimostrò che <strong>qualsiasi</strong> suono 
+          può essere scomposto in una somma di onde semplici (sinusoidi). È come dire che ogni 
+          colore si può ottenere mescolando rosso, verde e blu!
+        </InfoBox>
+
+        {/* Visual explanation */}
+        <div className="module-card bg-gradient-to-br from-orange-500/5 to-red-500/5">
+          <h4 className="font-display text-lg font-semibold mb-4">
+            🎼 Come funziona?
+          </h4>
+          <div className="space-y-4 text-muted-foreground">
+            <p>
+              <strong>La fondamentale (1°)</strong> è la frequenza base: determina quale nota sentiamo.
+            </p>
+            <p>
+              <strong>Gli armonici (2°, 3°, 4°...)</strong> sono multipli esatti della fondamentale: 
+              se la fondamentale è 220 Hz, il secondo armonico è 440 Hz, il terzo 660 Hz, e così via.
+            </p>
+            <p>
+              <strong>Il timbro</strong> dipende da quali armonici sono presenti e quanto sono forti. 
+              Ecco perché un flauto (pochi armonici) suona diverso da un violino (molti armonici)!
+            </p>
+          </div>
+        </div>
+
+        {/* Frequency ratios */}
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="module-card text-center">
+            <div className="text-3xl font-bold text-accent mb-2">2:1</div>
+            <div className="text-sm font-medium">2° armonico</div>
+            <div className="text-xs text-muted-foreground">Un'ottava sopra</div>
+          </div>
+          <div className="module-card text-center">
+            <div className="text-3xl font-bold text-violet-500 mb-2">3:1</div>
+            <div className="text-sm font-medium">3° armonico</div>
+            <div className="text-xs text-muted-foreground">Ottava + quinta</div>
+          </div>
+          <div className="module-card text-center">
+            <div className="text-3xl font-bold text-blue-500 mb-2">4:1</div>
+            <div className="text-sm font-medium">4° armonico</div>
+            <div className="text-xs text-muted-foreground">Due ottave sopra</div>
+          </div>
+        </div>
+      </div>
+    </ModuleLayout>
+  );
+};
+
+export default Module5;
