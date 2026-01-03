@@ -4,9 +4,9 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import ModuleLayout from '@/components/ModuleLayout';
-import InfoBox from '@/components/InfoBox';
-import PlayButton from '@/components/PlayButton';
+import { ModuleLayout } from '@/components/ModuleLayout';
+import { InfoBox } from '@/components/InfoBox';
+import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { getAudioContext, stopOscillator, type OscillatorNodes } from '@/lib/audioUtils';
 import { useModuleStatus } from '@/hooks/useProgress';

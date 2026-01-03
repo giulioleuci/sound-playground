@@ -59,10 +59,11 @@ describe('audioUtils - Musical Calculations', () => {
       expect(fifth).toBeCloseTo(150, 1);
     });
 
-    it('should calculate fifth down (2:3 ratio)', () => {
+    it('should calculate fifth down (2:3 ratio) with octave normalization', () => {
       const baseFreq = 150;
       const fifthDown = pythagoreanTuning(baseFreq, -1);
-      expect(fifthDown).toBeCloseTo(100, 1);
+      // 150 / 1.5 = 100, but normalized to [150, 300] becomes 200
+      expect(fifthDown).toBeCloseTo(200, 1);
     });
 
     it('should accumulate 12 fifths to create Pythagorean comma', () => {

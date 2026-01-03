@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sound Playground</title>
+    <script>
+      // SPA redirect for GitHub Pages
+      // Saves the full URL path and redirects to index.html
+      // The redirect script in index.html will restore the path
+      const path = window.location.pathname;
+      const search = window.location.search;
+      const hash = window.location.hash;
+
+      // Store the path in sessionStorage for the main page to read
+      sessionStorage.setItem('spa-redirect-path', path + search + hash);
+
+      // Redirect to the base path
+      window.location.replace('/sound-playground/');
+    </script>
+  </head>
+  <body>
+    <p>Reindirizzamento in corso...</p>
+  </body>
+</html>
