@@ -1,8 +1,7 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
-import { WaveVisualizer } from '@/components/WaveVisualizer';
 import { InfoBox } from '@/components/InfoBox';
-import { Play, Square } from 'lucide-react';
+import { Square } from 'lucide-react';
 
 type WaveType = 'sine' | 'square' | 'triangle' | 'sawtooth';
 
@@ -45,12 +44,69 @@ const instruments: InstrumentType[] = [
   },
 ];
 
+// Custom wave drawer for each instrument type
+const drawInstrumentWave = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  waveType: WaveType,
+  phase: number,
+  color: string
+) => {
+  const centerY = height / 2;
+  const amplitude = height / 3;
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+
+  for (let x = 0; x <= width; x++) {
+    const t = (x / width) * Math.PI * 4 + phase;
+    let y = centerY;
+
+    if (waveType === 'sine') {
+      // Pure sinusoid
+      y = centerY + Math.sin(t) * amplitude;
+    } else if (waveType === 'triangle') {
+      // Triangle wave - using arcsin of sin to create triangle shape
+      const period = Math.PI * 2;
+      const normalized = ((t % period) + period) % period;
+      if (normalized < period / 2) {
+        y = centerY + (normalized / (period / 4) - 1) * amplitude;
+      } else {
+        y = centerY + (3 - normalized / (period / 4)) * amplitude;
+      }
+    } else if (waveType === 'square') {
+      // Square wave
+      const sinVal = Math.sin(t);
+      y = centerY + (sinVal > 0 ? 1 : -1) * amplitude * 0.8;
+    } else if (waveType === 'sawtooth') {
+      // Sawtooth wave
+      const period = Math.PI * 2;
+      const normalized = ((t % period) + period) % period;
+      y = centerY + ((normalized / period) * 2 - 1) * amplitude;
+    }
+
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+};
+
 const Module4 = () => {
   const [activeInstrument, setActiveInstrument] = useState<WaveType | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorRef = useRef<OscillatorNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+  const phaseRef = useRef(0);
   
   const frequency = 440;
 
@@ -103,6 +159,57 @@ const Module4 = () => {
     setIsPlaying(false);
     setActiveInstrument(null);
   }, []);
+
+  // Draw wave animation
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !activeInstrument) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+
+    resizeCanvas();
+
+    const draw = () => {
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw grid
+      ctx.strokeStyle = 'hsl(220 40% 13% / 0.08)';
+      ctx.lineWidth = 1;
+      const centerY = height / 2;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(width, centerY);
+      ctx.stroke();
+
+      const inst = instruments.find(i => i.id === activeInstrument);
+      if (inst) {
+        drawInstrumentWave(ctx, width, height, activeInstrument, phaseRef.current, inst.color);
+      }
+
+      if (isPlaying) {
+        phaseRef.current += 0.08;
+        animationRef.current = requestAnimationFrame(draw);
+      }
+    };
+
+    draw();
+
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [activeInstrument, isPlaying]);
 
   return (
     <ModuleLayout
@@ -164,11 +271,10 @@ const Module4 = () => {
             <h4 className="font-semibold mb-4">
               Forma d'onda: {instruments.find(i => i.id === activeInstrument)?.name}
             </h4>
-            <WaveVisualizer
-              frequency={frequency}
-              amplitude={60}
-              isAnimating={isPlaying}
-              waveColor={instruments.find(i => i.id === activeInstrument)?.color || '#f97316'}
+            <canvas
+              ref={canvasRef}
+              className="w-full h-48 rounded-xl wave-canvas"
+              style={{ display: 'block' }}
             />
             <p className="text-sm text-muted-foreground mt-4">
               {instruments.find(i => i.id === activeInstrument)?.description}

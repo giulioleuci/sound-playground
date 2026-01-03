@@ -1,27 +1,45 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { Slider } from '@/components/Slider';
 import { PlayButton } from '@/components/PlayButton';
 
+// Pan flute notes with their ratios
+const panFluteNotes = [
+  { name: 'Do', ratio: 1, lengthPercent: 100 },
+  { name: 'Re', ratio: 9/8, lengthPercent: 100 / (9/8) },
+  { name: 'Mi', ratio: 81/64, lengthPercent: 100 / (81/64) },
+  { name: 'Fa', ratio: 4/3, lengthPercent: 100 / (4/3) },
+  { name: 'Sol', ratio: 3/2, lengthPercent: 100 / (3/2) },
+  { name: 'La', ratio: 27/16, lengthPercent: 100 / (27/16) },
+  { name: 'Si', ratio: 243/128, lengthPercent: 100 / (243/128) },
+  { name: 'Do₂', ratio: 2, lengthPercent: 50 },
+];
+
 const Module9 = () => {
   const [stringLength, setStringLength] = useState(100);
-  const [pipeLength, setPipeLength] = useState(100);
+  const [selectedPipe, setSelectedPipe] = useState<number | null>(null);
   const [isPlayingString, setIsPlayingString] = useState(false);
   const [isPlayingPipe, setIsPlayingPipe] = useState(false);
+  const [playingPipeIndex, setPlayingPipeIndex] = useState<number | null>(null);
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorRef = useRef<OscillatorNode | null>(null);
 
   const baseFreq = 220; // Base frequency at 100% length
 
+  const stopSound = useCallback(() => {
+    if (oscillatorRef.current) {
+      oscillatorRef.current.stop();
+      oscillatorRef.current = null;
+    }
+    setIsPlayingString(false);
+    setIsPlayingPipe(false);
+  }, []);
+
   const playString = useCallback(() => {
     if (isPlayingString) {
-      if (oscillatorRef.current) {
-        oscillatorRef.current.stop();
-        oscillatorRef.current = null;
-      }
-      setIsPlayingString(false);
+      stopSound();
       return;
     }
 
@@ -43,24 +61,19 @@ const Module9 = () => {
     osc.start();
     oscillatorRef.current = osc;
     setIsPlayingString(true);
-  }, [isPlayingString, stringLength]);
+    setIsPlayingPipe(false);
+  }, [isPlayingString, stringLength, stopSound]);
 
-  const playPipe = useCallback(() => {
-    if (isPlayingPipe) {
-      if (oscillatorRef.current) {
-        oscillatorRef.current.stop();
-        oscillatorRef.current = null;
-      }
-      setIsPlayingPipe(false);
-      return;
-    }
-
+  const playPipe = useCallback((pipeIndex: number) => {
+    stopSound();
+    
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
     const ctx = audioContextRef.current;
 
-    const freq = baseFreq * (100 / pipeLength);
+    const note = panFluteNotes[pipeIndex];
+    const freq = baseFreq * note.ratio;
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -72,13 +85,34 @@ const Module9 = () => {
     osc.start();
     oscillatorRef.current = osc;
     setIsPlayingPipe(true);
-  }, [isPlayingPipe, pipeLength]);
+    setPlayingPipeIndex(pipeIndex);
+    setSelectedPipe(pipeIndex);
+
+    // Stop after 1 second
+    setTimeout(() => {
+      try { osc.stop(); } catch {}
+      setIsPlayingPipe(false);
+      setPlayingPipeIndex(null);
+    }, 1000);
+  }, [stopSound]);
+
+  const playPanFluteScale = useCallback(() => {
+    panFluteNotes.forEach((_, i) => {
+      setTimeout(() => playPipe(i), i * 400);
+    });
+  }, [playPipe]);
+
+  // Update frequency while playing string
+  useEffect(() => {
+    if (isPlayingString && oscillatorRef.current && audioContextRef.current) {
+      const freq = baseFreq * (100 / stringLength);
+      oscillatorRef.current.frequency.setValueAtTime(freq, audioContextRef.current.currentTime);
+    }
+  }, [stringLength, isPlayingString]);
 
   // Calculate ratios for display
   const stringRatio = (100 / stringLength).toFixed(2);
-  const pipeRatio = (100 / pipeLength).toFixed(2);
   const stringFreq = (baseFreq * (100 / stringLength)).toFixed(0);
-  const pipeFreq = (baseFreq * (100 / pipeLength)).toFixed(0);
 
   return (
     <ModuleLayout
@@ -86,7 +120,7 @@ const Module9 = () => {
       title="Corde e colonne d'aria"
       description="Dalle corde della chitarra alle canne del flauto di Pan: la stessa matematica governa strumenti completamente diversi!"
       prevModule={{ path: '/modulo-8', title: 'Dominante' }}
-      nextModule={{ path: '/modulo-10', title: 'Temperamenti' }}
+      nextModule={{ path: '/modulo-10', title: 'Battimenti' }}
     >
       <div className="space-y-8">
         {/* String simulation */}
@@ -137,54 +171,57 @@ const Module9 = () => {
           </div>
         </div>
 
-        {/* Pipe simulation */}
+        {/* Pan Flute simulation */}
         <div className="module-card">
           <h3 className="font-display text-xl font-semibold mb-4">
             🎵 Il flauto di Pan
           </h3>
           
           <div className="mb-6">
-            {/* Pipe visualization */}
-            <div className="flex items-end gap-2 h-32 justify-center">
-              {[100, 89, 80, 75, 67, 60, 53, 50].map((height, i) => (
-                <div
+            {/* Pan flute visualization */}
+            <div className="flex items-end gap-2 h-40 justify-center">
+              {panFluteNotes.map((note, i) => (
+                <button
                   key={i}
-                  className={`w-8 rounded-t-lg transition-all duration-300 cursor-pointer hover:opacity-80 ${
-                    Math.abs(height - pipeLength) < 5 
-                      ? 'bg-accent shadow-glow' 
-                      : 'bg-primary/70'
+                  onClick={() => playPipe(i)}
+                  className={`relative rounded-t-lg transition-all duration-200 hover:opacity-90 ${
+                    playingPipeIndex === i 
+                      ? 'ring-2 ring-accent ring-offset-2' 
+                      : ''
                   }`}
-                  style={{ height: `${height}%` }}
-                  onClick={() => setPipeLength(height)}
-                />
+                  style={{ 
+                    width: '36px',
+                    height: `${note.lengthPercent}%`,
+                    backgroundColor: selectedPipe === i ? 'hsl(var(--accent))' : 'hsl(var(--primary) / 0.7)',
+                  }}
+                >
+                  <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap">
+                    {note.name}
+                  </span>
+                </button>
               ))}
             </div>
-            <p className="text-center text-sm text-muted-foreground mt-2">
-              Clicca su una canna per selezionarla
+            <p className="text-center text-sm text-muted-foreground mt-8">
+              Clicca su una canna per ascoltarla
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
-            <div>
-              <Slider
-                value={pipeLength}
-                onChange={setPipeLength}
-                min={50}
-                max={100}
-                step={1}
-                label="Lunghezza della canna"
-                unit="%"
-                color="#0ea5e9"
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <PlayButton isPlaying={isPlayingPipe} onToggle={playPipe} />
-              <div className="text-sm">
-                <div>Rapporto: <span className="font-bold text-wave-primary">{pipeRatio}</span></div>
-                <div>Frequenza: <span className="font-mono">{pipeFreq} Hz</span></div>
-              </div>
-            </div>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={playPanFluteScale}
+              className="btn-play"
+            >
+              Suona la scala
+            </button>
           </div>
+
+          {selectedPipe !== null && (
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              <strong>{panFluteNotes[selectedPipe].name}</strong>: 
+              lunghezza {panFluteNotes[selectedPipe].lengthPercent.toFixed(1)}%, 
+              rapporto frequenza {panFluteNotes[selectedPipe].ratio.toFixed(3)}
+            </div>
+          )}
         </div>
 
         <InfoBox type="tip" title="La stessa legge!">

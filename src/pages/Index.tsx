@@ -8,7 +8,8 @@ import {
   ListMusic,
   Star,
   Guitar,
-  Scale
+  Scale,
+  AudioWaveform
 } from 'lucide-react';
 import { ModuleCard } from '@/components/ModuleCard';
 
@@ -87,10 +88,18 @@ const modules = [
   },
   {
     number: 10,
+    title: 'I battimenti',
+    description: 'Quando due suoni simili si incontrano: pulsazioni e accordatura.',
+    icon: AudioWaveform,
+    to: '/modulo-10',
+    color: '#f97316',
+  },
+  {
+    number: 11,
     title: 'Temperamenti',
     description: 'Quando la matematica non torna: la virgola pitagorica.',
     icon: Scale,
-    to: '/modulo-10',
+    to: '/modulo-11',
     color: '#0ea5e9',
   },
 ];

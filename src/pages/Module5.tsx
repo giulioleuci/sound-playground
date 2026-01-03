@@ -2,7 +2,6 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { PlayButton } from '@/components/PlayButton';
-import { Slider } from '@/components/Slider';
 import { Plus, Minus } from 'lucide-react';
 
 interface Harmonic {
@@ -12,15 +11,17 @@ interface Harmonic {
   amplitude: number;
 }
 
+const createInitialHarmonics = (count: number): Harmonic[] => {
+  return Array.from({ length: count }, (_, i) => ({
+    n: i + 1,
+    ratio: String(i + 1),
+    active: i === 0, // Only first harmonic active initially
+    amplitude: Math.round(100 / (i + 1)),
+  }));
+};
+
 const Module5 = () => {
-  const [harmonics, setHarmonics] = useState<Harmonic[]>([
-    { n: 1, ratio: '1', active: true, amplitude: 100 },
-    { n: 2, ratio: '2', active: false, amplitude: 50 },
-    { n: 3, ratio: '3', active: false, amplitude: 33 },
-    { n: 4, ratio: '4', active: false, amplitude: 25 },
-    { n: 5, ratio: '5', active: false, amplitude: 20 },
-    { n: 6, ratio: '6', active: false, amplitude: 17 },
-  ]);
+  const [harmonics, setHarmonics] = useState<Harmonic[]>(createInitialHarmonics(5));
   const [isPlaying, setIsPlaying] = useState(false);
   const [playingHarmonic, setPlayingHarmonic] = useState<number | null>(null);
   
@@ -109,6 +110,30 @@ const Module5 = () => {
     ));
   };
 
+  const addMoreHarmonics = () => {
+    setHarmonics(prev => {
+      const currentMax = prev.length;
+      const newHarmonics: Harmonic[] = [];
+      for (let i = 1; i <= 5; i++) {
+        const n = currentMax + i;
+        newHarmonics.push({
+          n,
+          ratio: String(n),
+          active: true, // Activate new harmonics by default
+          amplitude: Math.round(100 / n),
+        });
+      }
+      return [...prev, ...newHarmonics];
+    });
+  };
+
+  const removeHarmonics = () => {
+    setHarmonics(prev => {
+      if (prev.length <= 5) return prev;
+      return prev.slice(0, -5);
+    });
+  };
+
   // Draw combined wave
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -118,10 +143,12 @@ const Module5 = () => {
     if (!ctx) return;
 
     const draw = () => {
-      const { width, height } = canvas;
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
       const centerY = height / 2;
       
-      ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Grid
       ctx.strokeStyle = 'hsl(220 40% 13% / 0.08)';
@@ -191,11 +218,11 @@ const Module5 = () => {
             Ogni armonico vibra 2, 3, 4... volte più veloce della fondamentale.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+          <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-5 gap-3 mb-6">
             {harmonics.map((h) => (
               <div 
                 key={h.n}
-                className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border-2 transition-all cursor-pointer ${
                   h.active 
                     ? 'border-accent bg-accent/10' 
                     : 'border-transparent bg-muted/50 hover:bg-muted'
@@ -215,7 +242,7 @@ const Module5 = () => {
                   </button>
                 </div>
                 
-                <div className="text-lg font-bold mb-1">
+                <div className="text-sm font-bold mb-1">
                   {(baseFrequency * h.n).toFixed(0)} Hz
                 </div>
                 
@@ -223,11 +250,35 @@ const Module5 = () => {
                   onClick={() => playSingleHarmonic(h.n)}
                   className="text-xs text-accent hover:underline"
                 >
-                  Ascolta solo
+                  Ascolta
                 </button>
               </div>
             ))}
           </div>
+
+          {/* Add/Remove harmonics buttons */}
+          <div className="flex justify-center gap-4 mb-6">
+            <button
+              onClick={removeHarmonics}
+              disabled={harmonics.length <= 5}
+              className="px-4 py-2 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <Minus size={16} />
+              Rimuovi 5 armonici
+            </button>
+            <button
+              onClick={addMoreHarmonics}
+              disabled={harmonics.length >= 30}
+              className="px-4 py-2 rounded-full bg-accent text-white hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <Plus size={16} />
+              Aggiungi 5 armonici
+            </button>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground mb-4">
+            Armonici attivi: {harmonics.filter(h => h.active).length} / {harmonics.length}
+          </p>
 
           {/* Combined wave display */}
           <canvas
