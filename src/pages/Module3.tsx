@@ -5,6 +5,8 @@ import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { InfoBox } from '@/components/InfoBox';
 import { useAudioContext } from '@/hooks/useAudioContext';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 const Module3 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -161,6 +163,14 @@ const Module3 = () => {
               </ul>
             </div>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={3} questions={getQuizForModule(3)} />
         </div>
       </div>
     </ModuleLayout>

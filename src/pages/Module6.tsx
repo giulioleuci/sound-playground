@@ -2,6 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { Play } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 const notes = [
   { name: 'Do₃', frequency: 261.63, ratio: '1' },
@@ -193,10 +195,18 @@ const Module6 = () => {
         </div>
 
         <InfoBox type="info" title="La matematica dietro l'ottava">
-          Se parti da una frequenza f, l'ottava sopra è sempre 2×f. 
-          Due ottave sopra? 2×2×f = 4×f. Tre ottave? 8×f. 
+          Se parti da una frequenza f, l'ottava sopra è sempre 2×f.
+          Due ottave sopra? 2×2×f = 4×f. Tre ottave? 8×f.
           Ogni ottava moltiplica per 2!
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={6} questions={getQuizForModule(6)} />
+        </div>
       </div>
     </ModuleLayout>
   );

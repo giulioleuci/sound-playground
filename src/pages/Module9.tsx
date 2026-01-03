@@ -3,6 +3,8 @@ import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { Slider } from '@/components/Slider';
 import { PlayButton } from '@/components/PlayButton';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 // Pan flute notes with their ratios
 const panFluteNotes = [
@@ -274,6 +276,14 @@ const Module9 = () => {
               una scala musicale completa. Le stesse frazioni funzionano!
             </p>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={9} questions={getQuizForModule(9)} />
         </div>
       </div>
     </ModuleLayout>

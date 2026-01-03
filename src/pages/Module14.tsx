@@ -11,6 +11,8 @@ import { getAudioContext, stopOscillator, type OscillatorNodes } from '@/lib/aud
 import { useModuleStatus } from '@/hooks/useProgress';
 import { TermTooltip } from '@/components/TermTooltip';
 import { Brain, Volume2, VolumeX, TrendingUp } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 export default function Module14() {
   const [shepardPlaying, setShepardPlaying] = useState(false);
@@ -303,6 +305,14 @@ export default function Module14() {
             </li>
           </ul>
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={14} questions={getQuizForModule(14)} />
+        </div>
 
         <div className="flex justify-center">
           <button

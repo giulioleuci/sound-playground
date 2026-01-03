@@ -3,6 +3,8 @@ import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { Slider } from '@/components/Slider';
 import { PlayButton } from '@/components/PlayButton';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 const Module10 = () => {
   const [freq1, setFreq1] = useState(440);
@@ -278,10 +280,18 @@ const Module10 = () => {
         </div>
 
         <InfoBox type="warning" title="Nel prossimo modulo...">
-          Scoprirai che i battimenti sono fondamentali per capire la differenza tra 
-          la scala pitagorica e quella moderna. Quando due note "dovrebbero" essere 
+          Scoprirai che i battimenti sono fondamentali per capire la differenza tra
+          la scala pitagorica e quella moderna. Quando due note "dovrebbero" essere
           uguali ma non lo sono, senti i battimenti!
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={10} questions={getQuizForModule(10)} />
+        </div>
       </div>
     </ModuleLayout>
   );

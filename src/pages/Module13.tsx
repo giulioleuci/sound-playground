@@ -14,6 +14,8 @@ import { clearCanvas } from '@/lib/canvasUtils';
 import { PresetManager } from '@/components/PresetManager';
 import { TermTooltip } from '@/components/TermTooltip';
 import { Music, Piano, Guitar, Drum } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 interface ADSRParams {
   attack: number; // seconds
@@ -386,6 +388,14 @@ export default function Module13() {
             <li><strong>Pad:</strong> Attack molto lento, sustain alto, release molto lungo</li>
           </ul>
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={13} questions={getQuizForModule(13)} />
+        </div>
 
         <div className="flex justify-center">
           <button

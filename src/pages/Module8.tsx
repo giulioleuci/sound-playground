@@ -2,6 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { Play, Pause } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 const Module8 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -248,6 +250,14 @@ const Module8 = () => {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={8} questions={getQuizForModule(8)} />
         </div>
       </div>
     </ModuleLayout>

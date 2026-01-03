@@ -1,17 +1,22 @@
-import { 
-  Waves, 
-  Activity, 
-  Volume2, 
-  Sparkles, 
-  Layers, 
-  Music2, 
+import {
+  Waves,
+  Activity,
+  Volume2,
+  Sparkles,
+  Layers,
+  Music2,
   ListMusic,
   Star,
   Guitar,
   Scale,
-  AudioWaveform
+  AudioWaveform,
+  Sliders,
+  TrendingUp,
+  Brain
 } from 'lucide-react';
 import { ModuleCard } from '@/components/ModuleCard';
+import { ProgressBar } from '@/components/ProgressBar';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 
 const modules = [
   {
@@ -102,6 +107,30 @@ const modules = [
     to: '/modulo-11',
     color: '#0ea5e9',
   },
+  {
+    number: 12,
+    title: 'Sintesi Additiva',
+    description: 'Crea timbri complessi sommando armonici puri.',
+    icon: Sliders,
+    to: '/modulo-12',
+    color: '#a855f7',
+  },
+  {
+    number: 13,
+    title: 'Inviluppo ADSR',
+    description: 'Controlla la dinamica temporale del suono.',
+    icon: TrendingUp,
+    to: '/modulo-13',
+    color: '#10b981',
+  },
+  {
+    number: 14,
+    title: 'Psicoacustica',
+    description: 'Illusioni audio e percezione del suono.',
+    icon: Brain,
+    to: '/modulo-14',
+    color: '#f59e0b',
+  },
 ];
 
 const Index = () => {
@@ -109,6 +138,11 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Hero section */}
       <header className="relative overflow-hidden">
+        {/* Dark mode toggle */}
+        <div className="absolute top-4 right-4 z-10">
+          <DarkModeToggle />
+        </div>
+
         <div className="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent" />
         <div className="container mx-auto px-4 py-16 relative">
           <div className="max-w-3xl mx-auto text-center animate-fade-in">
@@ -116,15 +150,15 @@ const Index = () => {
               <Waves size={16} />
               <span>Esplora il mondo dei suoni</span>
             </div>
-            
+
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
               <span className="text-foreground">Matematica, Fisica</span>
               <br />
               <span className="gradient-text">e Musica</span>
             </h1>
-            
+
             <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Scopri come i numeri si trasformano in melodie, le vibrazioni in armonia, 
+              Scopri come i numeri si trasformano in melodie, le vibrazioni in armonia,
               e la matematica in musica. Un viaggio interattivo tra scienza e arte.
             </p>
           </div>
@@ -137,11 +171,16 @@ const Index = () => {
       {/* Modules grid */}
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
+          {/* Progress tracking */}
+          <div className="mb-12">
+            <ProgressBar showDetails={true} />
+          </div>
+
           <h2 className="section-title text-center mb-2">I moduli</h2>
           <p className="text-center text-muted-foreground mb-10">
             Clicca su un modulo per iniziare l'esplorazione
           </p>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {modules.map((module) => (
               <ModuleCard key={module.number} {...module} />

@@ -2,6 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { Play } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 // Pythagorean tuning - built from perfect fifths
 const pythagoreanScale = [
@@ -254,6 +256,14 @@ const Module11 = () => {
               <div className="font-medium">Compromesso = Musica</div>
             </div>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={11} questions={getQuizForModule(11)} />
         </div>
       </div>
     </ModuleLayout>

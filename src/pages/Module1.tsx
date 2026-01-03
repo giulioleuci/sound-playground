@@ -4,7 +4,9 @@ import { WaveVisualizer } from '@/components/WaveVisualizer';
 import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { InfoBox } from '@/components/InfoBox';
+import { Quiz } from '@/components/Quiz';
 import { useAudioContext } from '@/hooks/useAudioContext';
+import { getQuizForModule } from '@/data/quizzes';
 
 const Module1 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -107,9 +109,17 @@ const Module1 = () => {
 
         {/* Experiment suggestion */}
         <InfoBox type="info" title="Prova tu!">
-          Muovi il cursore mentre ascolti: nota come il suono cambia insieme all'onda. 
+          Muovi il cursore mentre ascolti: nota come il suono cambia insieme all'onda.
           Vibrazioni più veloci = suoni più acuti. Vibrazioni più lente = suoni più gravi.
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={1} questions={getQuizForModule(1)} />
+        </div>
       </div>
     </ModuleLayout>
   );

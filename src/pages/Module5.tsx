@@ -3,6 +3,8 @@ import { ModuleLayout } from '@/components/ModuleLayout';
 import { InfoBox } from '@/components/InfoBox';
 import { PlayButton } from '@/components/PlayButton';
 import { Plus, Minus } from 'lucide-react';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 interface Harmonic {
   n: number;
@@ -338,6 +340,14 @@ const Module5 = () => {
             <div className="text-sm font-medium">4° armonico</div>
             <div className="text-xs text-muted-foreground">Due ottave sopra</div>
           </div>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={5} questions={getQuizForModule(5)} />
         </div>
       </div>
     </ModuleLayout>

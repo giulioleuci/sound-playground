@@ -5,6 +5,8 @@ import { PlayButton } from '@/components/PlayButton';
 import { Slider } from '@/components/Slider';
 import { InfoBox } from '@/components/InfoBox';
 import { useAudioContext } from '@/hooks/useAudioContext';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 const Module2 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -145,10 +147,18 @@ const Module2 = () => {
             🎵 Cosa significa Hz?
           </h4>
           <p className="text-muted-foreground">
-            <strong>Hz</strong> sta per Hertz, l'unità di misura della frequenza. 
-            Un suono a 440 Hz vibra 440 volte in un secondo! È la nota "La" che 
+            <strong>Hz</strong> sta per Hertz, l'unità di misura della frequenza.
+            Un suono a 440 Hz vibra 440 volte in un secondo! È la nota "La" che
             gli strumenti usano per accordarsi.
           </p>
+        </div>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={2} questions={getQuizForModule(2)} />
         </div>
       </div>
     </ModuleLayout>

@@ -14,6 +14,8 @@ import { useCanvas } from '@/hooks/useCanvas';
 import { clearCanvas, drawSineWave } from '@/lib/canvasUtils';
 import { PresetManager } from '@/components/PresetManager';
 import { TermTooltip } from '@/components/TermTooltip';
+import { Quiz } from '@/components/Quiz';
+import { getQuizForModule } from '@/data/quizzes';
 
 interface Harmonic {
   number: number;
@@ -293,6 +295,14 @@ export default function Module12() {
             <li>Aggiungi la sub-ottava (16') per un suono più corposo</li>
           </ul>
         </InfoBox>
+
+        {/* Quiz */}
+        <div className="module-card">
+          <h3 className="font-display text-xl font-semibold mb-6">
+            Verifica la tua comprensione
+          </h3>
+          <Quiz moduleNumber={12} questions={getQuizForModule(12)} />
+        </div>
 
         <div className="flex justify-center">
           <button
