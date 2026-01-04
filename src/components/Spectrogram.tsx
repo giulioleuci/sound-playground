@@ -9,7 +9,7 @@ import { setupCanvasDPI, clearCanvas } from '@/lib/canvasUtils';
 import { cn } from '@/lib/utils';
 
 interface SpectrogramProps {
-  audioSource?: MediaStreamAudioSourceNode | OscillatorNode;
+  audioSource?: MediaStreamAudioSourceNode | OscillatorNode | GainNode | AudioNode;
   fftSize?: number; // 256, 512, 1024, 2048, 4096, 8192
   smoothing?: number; // 0-1
   minDecibels?: number; // -100 to 0
@@ -206,7 +206,7 @@ export function Oscilloscope({
   fftSize = 2048,
   className,
 }: {
-  audioSource?: MediaStreamAudioSourceNode | OscillatorNode;
+  audioSource?: MediaStreamAudioSourceNode | OscillatorNode | GainNode | AudioNode;
   fftSize?: number;
   className?: string;
 }) {

@@ -18,33 +18,33 @@ interface InstrumentType {
 }
 
 const instruments: InstrumentType[] = [
-  { 
-    id: 'sine', 
-    name: 'Flauto', 
-    icon: '🎵', 
+  {
+    id: 'sine',
+    name: 'Onda sinusoidale',
+    icon: '〰️',
     color: '#3b82f6',
-    description: 'Suono puro e dolce, una sola frequenza'
+    description: 'Solo la fondamentale (1° armonico). Suono puro senza armonici superiori.'
   },
-  { 
-    id: 'triangle', 
-    name: 'Clarinetto', 
-    icon: '🎷', 
+  {
+    id: 'triangle',
+    name: 'Onda triangolare',
+    icon: '📐',
     color: '#8b5cf6',
-    description: 'Suono caldo con alcuni armonici dispari'
+    description: 'Armonici dispari (1°, 3°, 5°...) con decadimento quadratico (1, 1/9, 1/25...).'
   },
-  { 
-    id: 'square', 
-    name: 'Organo', 
-    icon: '🎹', 
+  {
+    id: 'square',
+    name: 'Onda quadra',
+    icon: '⬜',
     color: '#f97316',
-    description: 'Suono ricco con molti armonici dispari'
+    description: 'Armonici dispari (1°, 3°, 5°...) con decadimento lineare (1, 1/3, 1/5...).'
   },
-  { 
-    id: 'sawtooth', 
-    name: 'Violino', 
-    icon: '🎻', 
+  {
+    id: 'sawtooth',
+    name: 'Onda a dente di sega',
+    icon: '🪚',
     color: '#ef4444',
-    description: 'Suono brillante con tutti gli armonici'
+    description: 'Tutti gli armonici (1°, 2°, 3°, 4°...) con decadimento lineare (1, 1/2, 1/3...).'
   },
 ];
 
@@ -224,13 +224,13 @@ const Module4 = () => {
       nextModule={{ path: '/modulo-5', title: 'Armonici' }}
     >
       <div className="space-y-8">
-        {/* Instrument selector */}
+        {/* Waveform selector */}
         <div className="module-card">
           <h3 className="font-display text-xl font-semibold mb-4">
             Ascolta la stessa nota con timbri diversi
           </h3>
           <p className="text-muted-foreground mb-6">
-            Tutti questi strumenti suonano la stessa nota (La - 440 Hz), ma hanno un suono diverso.
+            Tutte queste forme d'onda suonano la stessa nota (La - 440 Hz), ma hanno un timbro diverso a causa della loro diversa composizione armonica.
           </p>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -358,9 +358,9 @@ const Module4 = () => {
         </div>
 
         <InfoBox type="tip" title="Lo spettro è come una ricetta!">
-          Ogni strumento ha la sua "ricetta" di frequenze. Il flauto usa quasi solo
-          la frequenza principale (<TermTooltip term="fondamentale">fondamentale</TermTooltip>). Il violino mescola tante frequenze
-          (<TermTooltip term="armonico">armonici</TermTooltip>) in proporzioni precise. Nel prossimo modulo vedremo come funziona!
+          Ogni forma d'onda ha la sua "ricetta" di frequenze. L'onda sinusoidale usa solo
+          la frequenza principale (<TermTooltip term="fondamentale">fondamentale</TermTooltip>). L'onda a dente di sega mescola tutti gli
+          <TermTooltip term="armonico">armonici</TermTooltip> in proporzioni precise. Nel prossimo modulo vedremo come funziona la scomposizione di Fourier!
         </InfoBox>
 
         {/* Quiz */}
