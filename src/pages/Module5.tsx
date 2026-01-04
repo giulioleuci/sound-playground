@@ -7,6 +7,7 @@ import { Plus, Minus } from 'lucide-react';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
 import { Spectrogram } from '@/components/Spectrogram';
+import { getAudioContext } from '@/lib/audioUtils';
 
 interface Harmonic {
   n: number;
@@ -28,8 +29,7 @@ const Module5 = () => {
   const [harmonics, setHarmonics] = useState<Harmonic[]>(createInitialHarmonics(5));
   const [isPlaying, setIsPlaying] = useState(false);
   const [playingHarmonic, setPlayingHarmonic] = useState<number | null>(null);
-  
-  const audioContextRef = useRef<AudioContext | null>(null);
+
   const oscillatorsRef = useRef<OscillatorNode[]>([]);
   const gainNodesRef = useRef<GainNode[]>([]);
   const masterGainRef = useRef<GainNode | null>(null);
@@ -55,10 +55,7 @@ const Module5 = () => {
       return;
     }
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    const ctx = audioContextRef.current;
+    const ctx = getAudioContext();
 
     // Create master gain for spectrum analysis
     const masterGain = ctx.createGain();
@@ -89,11 +86,8 @@ const Module5 = () => {
 
   const playSingleHarmonic = useCallback((n: number) => {
     stopAll();
-    
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    const ctx = audioContextRef.current;
+
+    const ctx = getAudioContext();
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();

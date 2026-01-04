@@ -6,6 +6,7 @@ import { Square } from 'lucide-react';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
 import { Spectrogram } from '@/components/Spectrogram';
+import { getAudioContext } from '@/lib/audioUtils';
 
 type WaveType = 'sine' | 'square' | 'triangle' | 'sawtooth';
 
@@ -105,13 +106,12 @@ const drawInstrumentWave = (
 const Module4 = () => {
   const [activeInstrument, setActiveInstrument] = useState<WaveType | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorRef = useRef<OscillatorNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const phaseRef = useRef(0);
-  
+
   const frequency = 440;
 
   const playInstrument = useCallback((waveType: WaveType) => {
@@ -131,11 +131,8 @@ const Module4 = () => {
       oscillatorRef.current.stop();
     }
 
-    // Initialize audio context
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    const ctx = audioContextRef.current;
+    // Use shared audio context
+    const ctx = getAudioContext();
 
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
