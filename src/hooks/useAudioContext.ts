@@ -1,16 +1,13 @@
 import { useRef, useCallback, useState } from 'react';
+import { getAudioContext } from '@/lib/audioUtils';
 
 export const useAudioContext = () => {
-  const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorRef = useRef<OscillatorNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const initAudio = useCallback(() => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    return audioContextRef.current;
+    return getAudioContext();
   }, []);
 
   const startOscillator = useCallback((frequency: number, amplitude: number = 0.3, waveType: OscillatorType = 'sine') => {
@@ -52,14 +49,16 @@ export const useAudioContext = () => {
   }, []);
 
   const setFrequency = useCallback((frequency: number) => {
-    if (oscillatorRef.current && audioContextRef.current) {
-      oscillatorRef.current.frequency.setValueAtTime(frequency, audioContextRef.current.currentTime);
+    if (oscillatorRef.current) {
+      const ctx = getAudioContext();
+      oscillatorRef.current.frequency.setValueAtTime(frequency, ctx.currentTime);
     }
   }, []);
 
   const setAmplitude = useCallback((amplitude: number) => {
-    if (gainNodeRef.current && audioContextRef.current) {
-      gainNodeRef.current.gain.setValueAtTime(amplitude, audioContextRef.current.currentTime);
+    if (gainNodeRef.current) {
+      const ctx = getAudioContext();
+      gainNodeRef.current.gain.setValueAtTime(amplitude, ctx.currentTime);
     }
   }, []);
 

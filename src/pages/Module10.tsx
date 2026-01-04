@@ -7,13 +7,13 @@ import { PlayButton } from '@/components/PlayButton';
 import { Quiz } from '@/components/Quiz';
 import { getQuizForModule } from '@/data/quizzes';
 import { Spectrogram, Oscilloscope } from '@/components/Spectrogram';
+import { getAudioContext } from '@/lib/audioUtils';
 
 const Module10 = () => {
   const [freq1, setFreq1] = useState(440);
   const [freq2, setFreq2] = useState(442);
   const [isPlaying, setIsPlaying] = useState(false);
-  
-  const audioContextRef = useRef<AudioContext | null>(null);
+
   const oscillatorsRef = useRef<OscillatorNode[]>([]);
   const gainNodesRef = useRef<GainNode[]>([]);
   const masterGainRef = useRef<GainNode | null>(null);
@@ -38,10 +38,7 @@ const Module10 = () => {
       return;
     }
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-    const ctx = audioContextRef.current;
+    const ctx = getAudioContext();
 
     // Create master gain for visualization
     const masterGain = ctx.createGain();
@@ -76,9 +73,10 @@ const Module10 = () => {
 
   // Update frequencies while playing
   useEffect(() => {
-    if (isPlaying && oscillatorsRef.current.length === 2 && audioContextRef.current) {
-      oscillatorsRef.current[0].frequency.setValueAtTime(freq1, audioContextRef.current.currentTime);
-      oscillatorsRef.current[1].frequency.setValueAtTime(freq2, audioContextRef.current.currentTime);
+    if (isPlaying && oscillatorsRef.current.length === 2) {
+      const ctx = getAudioContext();
+      oscillatorsRef.current[0].frequency.setValueAtTime(freq1, ctx.currentTime);
+      oscillatorsRef.current[1].frequency.setValueAtTime(freq2, ctx.currentTime);
     }
   }, [freq1, freq2, isPlaying]);
 
