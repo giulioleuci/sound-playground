@@ -1,73 +1,134 @@
-# Welcome to your Lovable project
+# Sound Playground 🎵
 
-## Project info
+Un'applicazione web educativa interattiva che esplora la connessione tra matematica, fisica e musica attraverso 14 moduli didattici.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 📖 Descrizione
 
-## How can I edit this code?
+Sound Playground è una piattaforma didattica che guida gli utenti attraverso i concetti fondamentali dell'acustica e della musica, inclusi:
 
-There are several ways of editing your application.
+- Vibrazioni sonore e frequenze
+- Ampiezza e intensità del suono
+- Armoniche e trasformata di Fourier
+- Scale musicali e temperamenti
+- Sintesi audio e psicoacustica
+- Quiz interattivi e giochi di ear training
 
-**Use Lovable**
+## ✨ Caratteristiche
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- **14 Moduli Didattici** - Percorso educativo completo dalla fisica del suono alla teoria musicale
+- **Visualizzazioni Interattive** - Rappresentazioni grafiche in tempo reale delle forme d'onda
+- **Web Audio API** - Generazione e manipolazione del suono in tempo reale
+- **Interfaccia Intuitiva** - Design responsive ottimizzato per desktop e mobile
+- **Contenuti in Italiano** - Tutti i moduli e le spiegazioni sono in lingua italiana
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🚀 Installazione e Utilizzo
 
-**Use your preferred IDE**
+### Prerequisiti
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js (versione 18 o superiore)
+- npm o yarn
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installazione
 
-Follow these steps:
+```bash
+# Clona il repository
+git clone <URL_DEL_REPOSITORY>
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Entra nella directory del progetto
+cd sound-playground
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Installa le dipendenze
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Avvia il server di sviluppo
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+L'applicazione sarà disponibile su `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🛠️ Tecnologie Utilizzate
 
-**Use GitHub Codespaces**
+- **Vite** - Build tool e dev server
+- **React 18** - Framework UI
+- **TypeScript** - Type safety
+- **shadcn/ui** - Componenti UI
+- **Tailwind CSS** - Styling
+- **React Router DOM** - Navigazione
+- **Web Audio API** - Generazione audio
+- **React Query** - State management
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📁 Struttura del Progetto
 
-## What technologies are used for this project?
+```
+src/
+├── components/        # Componenti React riutilizzabili
+│   ├── ui/           # Componenti shadcn/ui
+│   └── ...           # PlayButton, WaveVisualizer, InfoBox, etc.
+├── hooks/            # Custom React hooks
+│   ├── useAudioContext.ts
+│   └── use-mobile.tsx
+├── pages/            # Pagine dei moduli
+│   ├── Index.tsx
+│   ├── Module1.tsx - Module11.tsx
+│   └── NotFound.tsx
+├── lib/              # Utility functions
+└── App.tsx           # Configurazione routing
+```
 
-This project is built with:
+## 🎓 Moduli Didattici
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. **Il suono come vibrazione** - Introduzione alla fisica del suono
+2. **Frequenza e altezza** - Relazione tra frequenza e percezione tonale
+3. **Ampiezza e intensità** - Volume e dinamica sonora
+4. **Timbro e spettro** - Caratteristiche distintive dei suoni
+5. **Armonici e Fourier** - Analisi spettrale e armoniche
+6. **Ottava e rapporti** - Intervalli musicali fondamentali
+7. **Costruire la scala con le quinte** - Teoria della scala musicale
+8. **La dominante** - Ruolo degli accordi nella tonalità
+9. **Corde e colonne d'aria** - Fisica degli strumenti musicali
+10. **I battimenti** - Interferenza di frequenze vicine
+11. **Temperamenti** - Sistemi di intonazione musicale
 
-## How can I deploy this project?
+## 🧑‍💻 Sviluppo
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Comandi Disponibili
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+npm run dev          # Avvia il server di sviluppo
+npm run build        # Build di produzione
+npm run build:dev    # Build di sviluppo
+npm run lint         # Esegue ESLint
+npm run preview      # Anteprima della build
+npm run test         # Esegue i test
+npm run test:watch   # Test in modalità watch
+npm run test:ui      # UI per i test
+```
 
-Yes, you can!
+### Aggiungere un Nuovo Modulo
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Crea un nuovo file `src/pages/ModuleX.tsx`
+2. Utilizza il componente `ModuleLayout` per la struttura
+3. Aggiungi la route in `src/App.tsx`
+4. Aggiungi la card del modulo in `src/pages/Index.tsx`
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🎨 Vibe Coding
+
+Questo progetto è stato realizzato utilizzando il **vibe coding**, un approccio di sviluppo che sfrutta l'intelligenza artificiale per la generazione e l'iterazione rapida del codice, mantenendo sempre il controllo e la qualità attraverso revisioni continue e test.
+
+Il vibe coding permette di:
+- Prototipare rapidamente nuove funzionalità
+- Esplorare diverse soluzioni architetturali
+- Mantenere coerenza nel codice e nello stile
+- Accelerare lo sviluppo mantenendo alta la qualità
+
+## 📄 Licenza
+
+Questo progetto è distribuito sotto licenza MIT.
+
+## 🤝 Contribuire
+
+I contributi sono benvenuti! Sentiti libero di aprire issue o pull request per miglioramenti, correzioni o nuove funzionalità.
+
+## 📞 Contatti
+
+Per domande o suggerimenti, apri una issue su GitHub.
